@@ -5,30 +5,24 @@
 package frc.robot;
 
 // frc imports
-import frc.robot.Constants.OperatorConstants;
-import frc.robot.commands.Autos;
-import frc.robot.commands.ExampleCommand;
-import frc.robot.commands.AutoCMDs.ExampleCMD;
-import frc.robot.generated.TunerConstants;
-import frc.robot.subsystems.CommandSwerveDrivetrain;
-import frc.robot.subsystems.ExampleSubsystem;
-
-// ctre imports
+import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.pathplanner.lib.auto.AutoBuilder;
-import com.pathplanner.lib.auto.NamedCommands;
-import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
+import com.pathplanner.lib.commands.FollowPathCommand;
 
-// wpi imports
-import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import edu.wpi.first.wpilibj2.command.button.Trigger;
-import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.math.filter.SlewRateLimiter;
+import static edu.wpi.first.units.Units.MetersPerSecond;
+import static edu.wpi.first.units.Units.RadiansPerSecond;
+import static edu.wpi.first.units.Units.RotationsPerSecond;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-
-import static edu.wpi.first.units.Units.*;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.robot.Constants.OperatorConstants;
+import frc.robot.generated.TunerConstants;
+import frc.robot.subsystems.CommandSwerveDrivetrain;
 
 /**
  * This class is where the bulk of the robot should be declared. Since
@@ -45,6 +39,7 @@ public class RobotContainer {
     private double MaxSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts desired top speed
     private double MaxAngularRate = RotationsPerSecond.of(Constants.DrivetrainConstants.MAX_ANGULAR_RATE).in(RadiansPerSecond);
 
+	// limits the change in the drivetrain; makes sure that we don't make any sharp turns. remove if not a concern
     private final SlewRateLimiter xLimiter = new SlewRateLimiter(Constants.DrivetrainConstants.SKEW_RATE_LIMITER_Y); 
     private final SlewRateLimiter yLimiter = new SlewRateLimiter(Constants.DrivetrainConstants.SKEW_RATE_LIMITER_X); 
     private final SlewRateLimiter rotLimiter = new SlewRateLimiter(Constants.DrivetrainConstants.SKEW_RATE_LIMITER_ROTATION); 
@@ -53,8 +48,13 @@ public class RobotContainer {
         .withDeadband(MaxSpeed * 0.05).withRotationalDeadband(MaxAngularRate * 0.05) // Add a 10% deadband
         .withDriveRequestType(DriveRequestType.OpenLoopVoltage); // Use open-loop control for drive motors
     
+    private final SwerveRequest.SwerveDriveBrake brake = new SwerveRequest.SwerveDriveBrake();
+    private final SwerveRequest.PointWheelsAt point = new SwerveRequest.PointWheelsAt();
+
     private final SwerveRequest.RobotCentric robotCentricDrive = new SwerveRequest.RobotCentric()
         .withDriveRequestType(DriveRequestType.OpenLoopVoltage);
+
+    private final Telemetry logger = new Telemetry(MaxSpeed);
 
     // The robot's subsystems and commands are defined here...
     public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
@@ -71,13 +71,15 @@ public class RobotContainer {
      */
     public RobotContainer() {
         // register all autoCMDs here
-        NamedCommands.registerCommand("ExampleCMD", new ExampleCMD());
         // auto stuff
         autoChooser = AutoBuilder.buildAutoChooser("Tests");
         SmartDashboard.putData("Auto Mode", autoChooser);
 
         // Configure the trigger bindings
         configureBindings();
+
+        // Warmup PathPlanner to avoid Java pauses
+        FollowPathCommand.warmupCommand().schedule();
     }
 
     /**
@@ -96,6 +98,8 @@ public class RobotContainer {
      */
     private void configureBindings() {
         /* /// DRIVETRAIN /// */
+		// Note that X is defined as forward according to WPILib convention,
+        // and Y is defined as to the left according to WPILib convention.
         drivetrain.setDefaultCommand(
             // Drivetrain will execute this command periodically
             drivetrain.applyRequest(() ->
@@ -107,6 +111,13 @@ public class RobotContainer {
                 .withRotationalRate(
                     rotLimiter.calculate(-joystick.getRightX()) * MaxAngularRate) // Drive counterclockwise with negative X (left)
             ));
+
+        // Idle while the robot is disabled. This ensures the configured
+        // neutral mode is applied to the drive motors while disabled.
+        final var idle = new SwerveRequest.Idle();
+        RobotModeTriggers.disabled().whileTrue(
+            drivetrain.applyRequest(() -> idle).ignoringDisable(true)
+        );
         // Schedule `ExampleCommand` when `exampleCondition` changes to `true`
         // new Trigger(m_exampleSubsystem::exampleCondition)
         //         .onTrue(new ExampleCommand(m_exampleSubsystem));
@@ -132,6 +143,10 @@ public class RobotContainer {
         joystick.pov(180).whileTrue(drivetrain.applyRequest(() ->
             robotCentricDrive.withVelocityX(0.5).withVelocityY(0))
         );
+
+		// reset the field centric position in case the robot becomes misaligned
+		joystick.back().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
+
     }
 
 
