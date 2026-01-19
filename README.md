@@ -29,15 +29,6 @@ The act of moving local code to the remote repository
 ### Pull
 The act of moving code from the remote repository into your local repository
 
-### Branch
-A parallel version of your code. Lets you work on features or fixes without affecting the main codebase. The default branch is usually called `main` or `master`
-
-### Merge
-Combining changes from one branch into another. Integrates your work back into the main codebase
-
-### Pull Request (PR)
-A GitHub feature for proposing changes. You request that your branch be merged into another branch (usually main), allowing others to review your code before it's accepted
-
 ### Clone
 Create a local copy of a remote repository on your machine
 
@@ -61,22 +52,6 @@ Restores a file at the specified path to the last commmited version, or type `.`
 #### `git reset --hard`
 Resets all local code to the last commit (whatever is currently on github), discarding all uncommitted changes - note that this doesn't care whether commits have been pushed
 
-#### `git stash`
-Store current changes without pushing them for later use
-
-#### `git stash apply`
-Apply the most recently stashed changes to your current branch
-
----
-
-### Working with Branches
-
-#### `git checkout <branch_name>`
-Moves to branch_name
-
-#### `git checkout -b <branch_name>`
-Creates a new branch called <branch_name> and moves to it
-
 ---
 
 ### Syncing with Remote
@@ -84,8 +59,6 @@ Creates a new branch called <branch_name> and moves to it
 #### `git pull`
 Download and integrate changes from the remote repository into your current branch
 
-#### `git push --set-upstream origin <branch_name>`
-Pushes current changes to new branch with name branch_name
 
 ---
 
@@ -414,6 +387,8 @@ This file is totally OK to edit, and in fact much of the code for the robot will
 
 ```
 
+
+
 # Motor Control
 This is a (hopefully) comprehensive guide on how to control motors in FRC. This guide assumes you are using TalonFX or TalonSRX motor variables. All of the code should be inserted into the command file.
 ## Types of Motor Control
@@ -530,3 +505,5 @@ public void exampleRunVoltage(double velocity) {
     );
 }
 ```
+
+# Created by: August

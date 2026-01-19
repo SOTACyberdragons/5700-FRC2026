@@ -12,6 +12,7 @@ import frc.robot.Constants;
 
 public class ShooterSubsystem extends SubsystemBase {
     private TalonFX shooterMotor = new TalonFX(Constants.IDs.SHOOTER_MOTOR_ID);
+    // pidf
   /** Creates a new ExampleSubsystem. */
   public ShooterSubsystem() {
 
