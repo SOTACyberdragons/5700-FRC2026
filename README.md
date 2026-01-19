@@ -93,22 +93,11 @@ Pushes current changes to new branch with name branch_name
 1. Get the latest code: 
 * `git clone <repo_url> (first time) or git pull (updating)`
 
-2. Switch to `dev` branch
-* `git checkout dev`
-
-3. Make your changes and push
+2. Make your changes and push
 * `git add .`
 * `git commit -m "your message"`
 * `git push`
 
-4. Create a Pull Request (PR)
-Go to GitHub and open a PR
-
-5. Wait for approval 
-Get your PR reviewed and approved
-
-6. Merge
-Merge the pull request into the target branch
 
 # FRC File Structure
 ## File and folder structure
@@ -128,6 +117,7 @@ src
                     commands
                         AutoCMDs
                             ExampleCMD.java
+                        ExampleCommand.java
                     generated
                         TunerConstants.java
                     subsystems
@@ -137,6 +127,7 @@ src
                     Main.java
                     Robot.java
                     RobotContainer.java
+                    Telemetry.java
 ```
 ## Subsystems
 In the `subsystems` folder, you will be listing all of the subsystems on the robot as individual files. The `subsystems` folder should contain a `CommandSwerveDrivetrain` file in it. Each file should look generally like this:

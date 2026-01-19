@@ -17,6 +17,14 @@ public final class Constants {
     public static final int k_DRIVER_CONTROLLER_PORT = 0;
   }
 
+  public static class IDs {
+    public static final int INTAKE_MOTOR_ID = 0;
+    public static final int INTAKE_PIVOT_MOTOR_ID = 0;
+    public static final int HOPPER_MOTOR_ID = 0;
+    public static final int SHOOTER_MOTOR_ID = 0;
+    public static final int CLIMBER_MOTOR_ID = 0;
+  }
+
   public static class DrivetrainConstants {
     public static final double MAX_ANGULAR_RATE = 0.75;  // 3/4 of a rotation per second max angular velocity
     public static final int SKEW_RATE_LIMITER_Y = 3;
@@ -70,5 +78,21 @@ public final class Constants {
     public static final double AUTO_VISION_ADJUST_ROTATION = 0.5;
 
 
+  }
+
+  public static class IntakeConstants {
+    
+  }
+
+  public static class HopperConstants {
+    
+  }
+
+  public static class ShooterConstants {
+    
+  }
+
+  public static class ClimberConstants {
+    
   }
 }

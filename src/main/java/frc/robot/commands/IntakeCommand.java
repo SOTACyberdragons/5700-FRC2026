@@ -8,7 +8,7 @@ import frc.robot.subsystems.IntakeSubsystem;
 import edu.wpi.first.wpilibj2.command.Command;
 
 /** An example command that uses an example subsystem. */
-public class IntakePivotCommand extends Command {
+public class IntakeCommand extends Command {
   private final IntakeSubsystem m_intakeSubsystem;
 
   /**
@@ -16,7 +16,7 @@ public class IntakePivotCommand extends Command {
    *
    * @param subsystem The subsystem used by this command.
    */
-  public IntakePivotCommand(IntakeSubsystem subsystem) {
+  public IntakeCommand(IntakeSubsystem subsystem) {
     m_intakeSubsystem = subsystem;
     // Use addRequirements() here to declare subsystem dependencies.
     addRequirements(subsystem);
