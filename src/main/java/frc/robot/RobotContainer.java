@@ -7,22 +7,35 @@ package frc.robot;
 // frc imports
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
+import com.ctre.phoenix6.swerve.SwerveRequest.ForwardPerspectiveValue;
 import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.commands.FollowPathCommand;
 
 import edu.wpi.first.math.filter.SlewRateLimiter;
+import edu.wpi.first.units.measure.AngularVelocity;
+
 import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
+import frc.robot.subsystems.IntakeSubsystem;
+import frc.robot.subsystems.ShooterSubsystem;
+import frc.robot.vision.LoggableRobotPose;
+import frc.robot.vision.PhotonVisionSystem;
+import frc.robot.subsystems.IntakeSubsystem.IntakeSetpoint;
+import frc.robot.subsystems.ShooterSubsystem.FlywheelSetpoint;
+
+
 
 /**
  * This class is where the bulk of the robot should be declared. Since
@@ -51,6 +64,11 @@ public class RobotContainer {
     private final SwerveRequest.SwerveDriveBrake brake = new SwerveRequest.SwerveDriveBrake();
     private final SwerveRequest.PointWheelsAt point = new SwerveRequest.PointWheelsAt();
 
+    private final SwerveRequest.FieldCentricFacingAngle targetHub = new SwerveRequest.FieldCentricFacingAngle()
+        .withHeadingPID(10, 0, 0)
+        .withDriveRequestType(DriveRequestType.OpenLoopVoltage)
+        .withForwardPerspective(ForwardPerspectiveValue.OperatorPerspective);
+
     private final SwerveRequest.RobotCentric robotCentricDrive = new SwerveRequest.RobotCentric()
         .withDriveRequestType(DriveRequestType.OpenLoopVoltage);
 
@@ -58,19 +76,34 @@ public class RobotContainer {
 
     // The robot's subsystems and commands are defined here...
     public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
+    public IntakeSubsystem m_intake = new IntakeSubsystem();
+    public ShooterSubsystem m_shooterSubsystem = new ShooterSubsystem();
+    public final PhotonVisionSystem vision = new PhotonVisionSystem(this::consumePhotonVisionMeasurement, () -> drivetrain.getState().Pose);
 
     // path follower
     private final SendableChooser<Command> autoChooser;
 
-    // Replace with CommandPS4Controller or CommandJoystick if needed
     private final CommandXboxController joystick = new CommandXboxController(
         OperatorConstants.k_DRIVER_CONTROLLER_PORT);
+
+    private final AngularVelocity SpinUpThreshold = RotationsPerSecond.of(Constants.ShooterConstants.SPINUP_THRESHOLD); // Tune to increase accuracy while not sacrificing throughput
+    private final Trigger isFlywheelReadyToShoot = m_shooterSubsystem.getTriggerWhenNearTarget(SpinUpThreshold).or(joystick.x());
+
 
     /**
      * The container for the robot. Contains subsystems, OI devices, and commands.
      */
     public RobotContainer() {
         // register all autoCMDs here
+        NamedCommands.registerCommand("Stop Shooting", m_shooterSubsystem.coastFlywheel().alongWith(m_intake.coastIntake()));
+        /* Shoot commands need a bit of time to spool up the flywheel before feeding with the intake */
+        NamedCommands.registerCommand("Shoot Near", m_shooterSubsystem.setTarget(() -> FlywheelSetpoint.Near)
+                                                            .alongWith(Commands.waitUntil(isFlywheelReadyToShoot).andThen(m_intake.setTarget(() ->IntakeSetpoint.FeedToShoot))));
+        NamedCommands.registerCommand("Shoot Far", m_shooterSubsystem.setTarget(() -> FlywheelSetpoint.Far)
+                                                            .alongWith(Commands.waitUntil(isFlywheelReadyToShoot).andThen(m_intake.setTarget(() ->IntakeSetpoint.FeedToShoot))));
+        NamedCommands.registerCommand("Stop Intake", m_intake.coastIntake().alongWith(m_shooterSubsystem.coastFlywheel()));
+        NamedCommands.registerCommand("Intake Fuel", m_intake.setTarget(() -> IntakeSetpoint.Intake).alongWith(m_shooterSubsystem.setTarget(()-> FlywheelSetpoint.Intake)));
+        NamedCommands.registerCommand("Outtake Fuel", m_intake.setTarget(() -> IntakeSetpoint.Outtake).alongWith(m_shooterSubsystem.setTarget(()-> FlywheelSetpoint.Outtake)));
         // auto stuff
         autoChooser = AutoBuilder.buildAutoChooser("Tests");
         SmartDashboard.putData("Auto Mode", autoChooser);
@@ -118,19 +151,30 @@ public class RobotContainer {
         RobotModeTriggers.disabled().whileTrue(
             drivetrain.applyRequest(() -> idle).ignoringDisable(true)
         );
-        // Schedule `ExampleCommand` when `exampleCondition` changes to `true`
-        // new Trigger(m_exampleSubsystem::exampleCondition)
-        //         .onTrue(new ExampleCommand(m_exampleSubsystem));
-
-        // Schedule `exampleMethodCommand` when the Xbox controller's B button is pressed,
-        // cancelling on release.
-        // m_driverController.b().whileTrue(m_exampleSubsystem.exampleMethodCommand());
         
+        ///// Alternate driving
+        /* B (hold) -> Vision-constricted driving */
+        joystick.b().whileTrue(drivetrain.applyRequest(()-> {
+            if (!vision.isHubTargetValid()) {
+                /* Do typical field-centric driving since we don't have a target */
+                return fieldCentricDrive.withVelocityX(-joystick.getLeftY() * MaxSpeed) // Drive forward with negative Y (forward)
+                    .withVelocityY(-joystick.getLeftX() * MaxSpeed) // Drive left with negative X (left)
+                    .withRotationalRate(-joystick.getRightX() * MaxAngularRate); // Drive counterclockwise with negative X (left)
+            } else {
+                /* Use the hub target to determine where to aim */
+                return targetHub.withTargetDirection(vision.getHeadingToHubFieldRelative())
+                    .withVelocityX(-joystick.getLeftY() * MaxSpeed) // Drive forward with negative Y (forward)
+                    .withVelocityY(-joystick.getLeftX() * MaxSpeed); // Drive left with negative X (left)
+            }
+        }
+        
+        ));
         /*Drive robot centric */
         /* this code outputs a flat amount of movement while driving robot centric, 
         so it drives really slowly. this is used for small adjustments or alignments. 
         Depending on the game, this may or may not be useful.
         */
+
         joystick.pov(270).whileTrue(drivetrain.applyRequest(() ->
             robotCentricDrive.withVelocityX(0).withVelocityY(-0.5))
         );
@@ -147,6 +191,29 @@ public class RobotContainer {
 		// reset the field centric position in case the robot becomes misaligned
 		joystick.back().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
 
+        //// Shooting and intaking
+        // Left Bumper -> Intake
+        joystick.leftBumper().whileTrue(
+            m_intake.setTarget(()->IntakeSetpoint.Intake).alongWith(
+                m_shooterSubsystem.setTarget(
+                    ()->FlywheelSetpoint.Intake
+                )
+            )
+        );
+        // Left Trigger (hold) -> Outtake
+        joystick.leftTrigger().whileTrue(m_intake.setTarget(()->IntakeSetpoint.Outtake).alongWith(m_shooterSubsystem.setTarget(()->FlywheelSetpoint.Outtake)));
+
+        // Right bumper (hold) -> Shoot(near)
+        joystick.rightBumper().whileTrue(
+            m_shooterSubsystem.setTarget(()->FlywheelSetpoint.Near) // First spin up the flywheel
+            .alongWith(Commands.waitUntil(isFlywheelReadyToShoot).andThen(m_intake.setTarget(()->IntakeSetpoint.FeedToShoot)))
+        );
+        // Right trigger (hold) -> Shoot(far)
+        joystick.rightTrigger().whileTrue(
+            m_shooterSubsystem.setTarget(()->FlywheelSetpoint.Far) // First spin up the flywheel
+            .alongWith(Commands.waitUntil(isFlywheelReadyToShoot).andThen(m_intake.setTarget(()->IntakeSetpoint.FeedToShoot)))
+        );
+
     }
 
 
@@ -160,5 +227,22 @@ public class RobotContainer {
         // An example command will be run in autonomous
         // return Autos.exampleAuto(m_exampleSubsystem);
         return autoChooser.getSelected();
+    }
+
+        public void consumePhotonVisionMeasurement(LoggableRobotPose pose) {
+        /* Super simple, should modify to support variable standard deviations */
+        drivetrain.addVisionMeasurement(pose.estimatedPose.toPose2d(), pose.timestampSeconds);
+    }
+
+    public void periodic() {
+        vision.periodic();
+    }
+
+    public void simulationPeriodic() {
+        var drivetrainPose = drivetrain.m_simOdometry.getPoseMeters();
+        vision.simPeriodic(drivetrainPose);
+
+        var debugField = vision.getSimDebugField();
+        debugField.getObject("EstimatedRobot").setPose(drivetrainPose);
     }
 }

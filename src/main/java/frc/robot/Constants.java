@@ -89,6 +89,7 @@ public final class Constants {
   }
 
   public static class ShooterConstants {
+    public static final double SPINUP_THRESHOLD = 3.0;
     
   }
 
