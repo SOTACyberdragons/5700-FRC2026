@@ -17,7 +17,9 @@ public class Robot extends TimedRobot {
     private Command m_autonomousCommand;
 
     private final RobotContainer m_robotContainer;
-    private final HubActiveState m_hubInstance = HubActiveState.getInstance();
+
+    /* determine if the hub is active */
+    // private final HubActiveState m_hubInstance = HubActiveState.getInstance();
 
     /* log and replay timestamp and joystick data */
     private final HootAutoReplay m_timeAndJoystickReplay = new HootAutoReplay()
@@ -32,7 +34,7 @@ public class Robot extends TimedRobot {
     public void robotPeriodic() {
         m_timeAndJoystickReplay.update();
         m_robotContainer.periodic();
-        m_hubInstance.periodic();
+        // m_hubInstance.periodic();
         CommandScheduler.getInstance().run();
     }
 

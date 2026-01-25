@@ -18,6 +18,9 @@ import edu.wpi.first.units.measure.AngularVelocity;
 import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
+import static frc.robot.States.IntakeState.DOWN;
+import static frc.robot.States.IntakeState.UP;
+
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -89,7 +92,7 @@ public class RobotContainer {
     private final AngularVelocity SpinUpThreshold = RotationsPerSecond.of(Constants.ShooterConstants.SPINUP_THRESHOLD); // Tune to increase accuracy while not sacrificing throughput
     private final Trigger isFlywheelReadyToShoot = m_shooterSubsystem.getTriggerWhenNearTarget(SpinUpThreshold).or(joystick.x());
 
-
+    private final States.IntakeState intakeState = UP;
     /**
      * The container for the robot. Contains subsystems, OI devices, and commands.
      */
@@ -154,20 +157,20 @@ public class RobotContainer {
         
         ///// Alternate driving
         /* B (hold) -> Vision-constricted driving */
-        joystick.b().whileTrue(drivetrain.applyRequest(()-> {
-            if (!vision.isHubTargetValid()) {
-                /* Do typical field-centric driving since we don't have a target */
-                return fieldCentricDrive.withVelocityX(-joystick.getLeftY() * MaxSpeed) // Drive forward with negative Y (forward)
-                    .withVelocityY(-joystick.getLeftX() * MaxSpeed) // Drive left with negative X (left)
-                    .withRotationalRate(-joystick.getRightX() * MaxAngularRate); // Drive counterclockwise with negative X (left)
-            } else {
-                /* Use the hub target to determine where to aim */
-                return targetHub.withTargetDirection(vision.getHeadingToHubFieldRelative())
-                    .withVelocityX(-joystick.getLeftY() * MaxSpeed) // Drive forward with negative Y (forward)
-                    .withVelocityY(-joystick.getLeftX() * MaxSpeed); // Drive left with negative X (left)
+        joystick.b().whileTrue(
+            drivetrain.applyRequest(()-> {
+                if (!vision.isHubTargetValid()) {
+                    /* Do typical field-centric driving since we don't have a target */
+                    return fieldCentricDrive.withVelocityX(-joystick.getLeftY() * MaxSpeed) // Drive forward with negative Y (forward)
+                        .withVelocityY(-joystick.getLeftX() * MaxSpeed) // Drive left with negative X (left)
+                        .withRotationalRate(-joystick.getRightX() * MaxAngularRate); // Drive counterclockwise with negative X (left)
+                } else {
+                    /* Use the hub target to determine where to aim */
+                    return targetHub.withTargetDirection(vision.getHeadingToHubFieldRelative())
+                        .withVelocityX(-joystick.getLeftY() * MaxSpeed) // Drive forward with negative Y (forward)
+                        .withVelocityY(-joystick.getLeftX() * MaxSpeed); // Drive left with negative X (left)
+                }
             }
-        }
-        
         ));
         /*Drive robot centric */
         /* this code outputs a flat amount of movement while driving robot centric, 
@@ -176,42 +179,47 @@ public class RobotContainer {
         */
 
         joystick.pov(270).whileTrue(drivetrain.applyRequest(() ->
-            robotCentricDrive.withVelocityX(0).withVelocityY(-0.5))
+            robotCentricDrive.withVelocityX(0).withVelocityY(-Constants.DrivetrainConstants.ROBOT_CENTRIC_DRIVE_SPEED))
         );
         joystick.pov(90).whileTrue(drivetrain.applyRequest(() ->
-            robotCentricDrive.withVelocityX(0).withVelocityY(0.5))
+            robotCentricDrive.withVelocityX(0).withVelocityY(Constants.DrivetrainConstants.ROBOT_CENTRIC_DRIVE_SPEED))
         );
         joystick.pov(0).whileTrue(drivetrain.applyRequest(() ->
-            robotCentricDrive.withVelocityX(-0.5).withVelocityY(0))
+            robotCentricDrive.withVelocityX(-Constants.DrivetrainConstants.ROBOT_CENTRIC_DRIVE_SPEED).withVelocityY(0))
         );
         joystick.pov(180).whileTrue(drivetrain.applyRequest(() ->
-            robotCentricDrive.withVelocityX(0.5).withVelocityY(0))
+            robotCentricDrive.withVelocityX(Constants.DrivetrainConstants.ROBOT_CENTRIC_DRIVE_SPEED).withVelocityY(0))
         );
 
 		// reset the field centric position in case the robot becomes misaligned
 		joystick.back().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
 
-        //// Shooting and intaking
-        // Left Bumper -> Intake
+        /////// Shooting and intaking
+        // A (toggle) -> pivot intake up or down
+        joystick.a().onTrue(m_intake.togglePivot());
+
+        // Left Bumper (hold) -> Intake
         joystick.leftBumper().whileTrue(
-            m_intake.setTarget(()->IntakeSetpoint.Intake).alongWith(
-                m_shooterSubsystem.setTarget(
-                    ()->FlywheelSetpoint.Intake
-                )
-            )
+            m_intake.setTarget(()->IntakeSetpoint.Intake) // intake
+            .alongWith(m_shooterSubsystem.setTarget(()->FlywheelSetpoint.Intake)) // this is feeding into the shooter?
         );
-        // Left Trigger (hold) -> Outtake
-        joystick.leftTrigger().whileTrue(m_intake.setTarget(()->IntakeSetpoint.Outtake).alongWith(m_shooterSubsystem.setTarget(()->FlywheelSetpoint.Outtake)));
+        // Left Trigger (hold) -> Outtake all
+        joystick.leftTrigger().whileTrue(
+            m_intake.setTarget(()->IntakeSetpoint.Outtake) //outtake
+            .alongWith(m_shooterSubsystem.setTarget(()->FlywheelSetpoint.Outtake)) // also outtake shooter
+        );
 
         // Right bumper (hold) -> Shoot(near)
         joystick.rightBumper().whileTrue(
             m_shooterSubsystem.setTarget(()->FlywheelSetpoint.Near) // First spin up the flywheel
-            .alongWith(Commands.waitUntil(isFlywheelReadyToShoot).andThen(m_intake.setTarget(()->IntakeSetpoint.FeedToShoot)))
+            .alongWith(Commands.waitUntil(isFlywheelReadyToShoot) // wait until ready to shoot
+            .andThen(m_intake.setTarget(()->IntakeSetpoint.FeedToShoot))) // use the intake to push balls into the shooter
         );
         // Right trigger (hold) -> Shoot(far)
         joystick.rightTrigger().whileTrue(
             m_shooterSubsystem.setTarget(()->FlywheelSetpoint.Far) // First spin up the flywheel
-            .alongWith(Commands.waitUntil(isFlywheelReadyToShoot).andThen(m_intake.setTarget(()->IntakeSetpoint.FeedToShoot)))
+            .alongWith(Commands.waitUntil(isFlywheelReadyToShoot) // wait until ready to shoot
+            .andThen(m_intake.setTarget(()->IntakeSetpoint.FeedToShoot))) // use the intake to push balls into the shooter
         );
 
     }

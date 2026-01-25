@@ -35,14 +35,15 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.robot.Constants;
 
 public class ShooterSubsystem extends SubsystemBase {
     /** Velocity setpoints for the flywheel. */
     public enum FlywheelSetpoint {
-        Intake(RotationsPerSecond.of(80)),
-        Outtake(RotationsPerSecond.of(-80)),
-        Near(RotationsPerSecond.of(70)),
-        Far(RotationsPerSecond.of(80));
+        Intake(RotationsPerSecond.of(Constants.ShooterConstants.INTAKE_PRM)),
+        Outtake(RotationsPerSecond.of(Constants.ShooterConstants.OUTTAKE_RPM)),
+        Near(RotationsPerSecond.of(Constants.ShooterConstants.SHOOT_NEAR_RPM)),
+        Far(RotationsPerSecond.of(Constants.ShooterConstants.SHOOT_FAR_RPM));
 
         /** The velocity target of the setpoint. */
         public final AngularVelocity leaderMotorTarget;
@@ -58,7 +59,7 @@ public class ShooterSubsystem extends SubsystemBase {
 
     /* leader and follower motors */
     private final CANBus kCANBus = new CANBus("*");
-    private final TalonFX leaderMotor = new TalonFX(10, kCANBus);
+    private final TalonFX leaderMotor = new TalonFX(Constants.IDs.SHOOTER_LEADER_MOTOR_ID, kCANBus);
 
     /* device status signals */
     private final StatusSignal<AngularVelocity> leaderMotorVelocity = leaderMotor.getVelocity(false);
@@ -106,12 +107,12 @@ public class ShooterSubsystem extends SubsystemBase {
         )
         .withSlot0(
             motorTalonFXInitialConfigs.Slot0.clone()
-                .withKP(0.8)
-                .withKI(0)
-                .withKD(0)
-                .withKS(0)
-                .withKV(0.12)
-                .withKA(0)
+                .withKP(Constants.ShooterConstants.LEADER_MOTOR_CONFIG_KP)
+                .withKI(Constants.ShooterConstants.LEADER_MOTOR_CONFIG_KI)
+                .withKD(Constants.ShooterConstants.LEADER_MOTOR_CONFIG_KD)
+                .withKS(Constants.ShooterConstants.LEADER_MOTOR_CONFIG_KS)
+                .withKV(Constants.ShooterConstants.LEADER_MOTOR_CONFIG_KV)
+                .withKA(Constants.ShooterConstants.LEADER_MOTOR_CONFIG_KA)
         );
 
     public ShooterSubsystem() {
