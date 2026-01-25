@@ -70,8 +70,7 @@ public class IntakeSubsystem extends SubsystemBase {
 	private MotionMagicVoltage intakePivotMM = new MotionMagicVoltage(0);
 	private final CoastOut pivotCoastRequest = new CoastOut();
 
-	private TalonFX intakePivotMotorLeader = new TalonFX(Constants.IDs.INTAKE_PIVOT_MOTOR_LEADER_ID, kCANBus);
-    private TalonFX intakePivotMotorFollower = new TalonFX(Constants.IDs.INTAKE_PIVOT_MOTOR_FOLLOWER_ID, kCANBus);
+	private TalonFX intakePivotMotor = new TalonFX(Constants.IDs.INTAKE_PIVOT_MOTOR_ID, kCANBus);
 	private TalonFX intakeMotor = new TalonFX(Constants.IDs.INTAKE_MOTOR_ID, kCANBus);
 
 
@@ -176,9 +175,7 @@ public class IntakeSubsystem extends SubsystemBase {
             frc.robot.States.intakeState = (t == IntakePivotSetpoint.Up) ? IntakeState.UP : IntakeState.DOWN;
             // Command the pivot motor to move to the requested position
             intakePivotPosition.withPosition(t.IntakePivotTarget);
-            intakePivotMotorLeader.setControl(intakePivotPosition);
-            // set the other motor to follow its lader, but in the opposite direction
-            intakePivotMotorFollower.setControl(new Follower(Constants.IDs.INTAKE_PIVOT_MOTOR_LEADER_ID, MotorAlignmentValue.Opposed));
+            intakePivotMotor.setControl(intakePivotPosition);
 		});
 	}
 
@@ -202,7 +199,7 @@ public class IntakeSubsystem extends SubsystemBase {
 
     public Command coastPivotIntake() {
         return runOnce(() -> {
-            intakePivotMotorLeader.setControl(pivotCoastRequest);
+            intakePivotMotor.setControl(pivotCoastRequest);
         });
     }
 

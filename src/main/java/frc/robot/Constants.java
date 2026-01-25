@@ -27,8 +27,7 @@ public final class Constants {
     // intake
     public static final int INTAKE_MOTOR_ID = 0;
     
-    public static final int INTAKE_PIVOT_MOTOR_LEADER_ID = 0;
-    public static final int INTAKE_PIVOT_MOTOR_FOLLOWER_ID = 0;
+    public static final int INTAKE_PIVOT_MOTOR_ID = 0;
     public static final int INTAKE_TOP_INDEX_ID = 21;
 
     public static final int HOPPER_MOTOR_ID = 0;
