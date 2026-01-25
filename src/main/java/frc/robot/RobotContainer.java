@@ -18,8 +18,6 @@ import edu.wpi.first.units.measure.AngularVelocity;
 import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
-import static frc.robot.States.IntakeState.DOWN;
-import static frc.robot.States.IntakeState.UP;
 
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -28,7 +26,9 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.robot.Constants;
 import frc.robot.Constants.OperatorConstants;
+import frc.robot.Constants.ShooterConstants;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.IntakeSubsystem;
@@ -86,13 +86,11 @@ public class RobotContainer {
     // path follower
     private final SendableChooser<Command> autoChooser;
 
-    private final CommandXboxController joystick = new CommandXboxController(
-        OperatorConstants.k_DRIVER_CONTROLLER_PORT);
+    private final CommandXboxController joystick = new CommandXboxController(OperatorConstants.k_DRIVER_CONTROLLER_PORT);
 
-    private final AngularVelocity SpinUpThreshold = RotationsPerSecond.of(Constants.ShooterConstants.SPINUP_THRESHOLD); // Tune to increase accuracy while not sacrificing throughput
-    private final Trigger isFlywheelReadyToShoot = m_shooterSubsystem.getTriggerWhenNearTarget(SpinUpThreshold).or(joystick.x());
+    private final AngularVelocity SpinUpThreshold = RotationsPerSecond.of(ShooterConstants.SPINUP_THRESHOLD); // Tune to increase accuracy while not sacrificing throughput
+    private final Trigger isFlywheelReadyToShoot = m_shooterSubsystem.getTriggerWhenNearTargetVelocity(SpinUpThreshold).or(joystick.x());
 
-    private final States.IntakeState intakeState = UP;
     /**
      * The container for the robot. Contains subsystems, OI devices, and commands.
      */
@@ -156,22 +154,36 @@ public class RobotContainer {
         );
         
         ///// Alternate driving
-        /* B (hold) -> Vision-constricted driving */
-        joystick.b().whileTrue(
+        /* Y (hold) -> Vision-constricted driving */
+        joystick.y().whileTrue(
             drivetrain.applyRequest(()-> {
                 if (!vision.isHubTargetValid()) {
                     /* Do typical field-centric driving since we don't have a target */
-                    return fieldCentricDrive.withVelocityX(-joystick.getLeftY() * MaxSpeed) // Drive forward with negative Y (forward)
-                        .withVelocityY(-joystick.getLeftX() * MaxSpeed) // Drive left with negative X (left)
-                        .withRotationalRate(-joystick.getRightX() * MaxAngularRate); // Drive counterclockwise with negative X (left)
+                    return fieldCentricDrive
+                        .withVelocityX(
+                            xLimiter.calculate(-joystick.getLeftY()) * MaxSpeed) // Drive forward with negative Y (forward)
+                        .withVelocityY(
+                            yLimiter.calculate(-joystick.getLeftX()) * MaxSpeed) // Drive left with negative X (left)
+                        .withRotationalRate(
+                            rotLimiter.calculate(-joystick.getRightX()) * MaxAngularRate); // Drive counterclockwise with negative X (left)
                 } else {
-                    /* Use the hub target to determine where to aim */
+                    /* Use the hub target to determine where to aim TODO: maybe point the wheels so that they are perpendicular to the hub? Do this only if we go with a non-variable shooter*/
                     return targetHub.withTargetDirection(vision.getHeadingToHubFieldRelative())
                         .withVelocityX(-joystick.getLeftY() * MaxSpeed) // Drive forward with negative Y (forward)
                         .withVelocityY(-joystick.getLeftX() * MaxSpeed); // Drive left with negative X (left)
                 }
             }
         ));
+
+        /* TODO: would be really cool to add a button for going over the bump. it would be a hold that 
+            * gets the current rotation,
+            * finds which of the 4 directions it is closest to (forward, back, left, right),
+            * turns the robot 45deg from that rotation.
+            * and then limits the sped to the exact amount we need to go over the bump
+
+        I would suggest using B for this
+        */ 
+        
         /*Drive robot centric */
         /* this code outputs a flat amount of movement while driving robot centric, 
         so it drives really slowly. this is used for small adjustments or alignments. 
@@ -221,6 +233,8 @@ public class RobotContainer {
             .alongWith(Commands.waitUntil(isFlywheelReadyToShoot) // wait until ready to shoot
             .andThen(m_intake.setTarget(()->IntakeSetpoint.FeedToShoot))) // use the intake to push balls into the shooter
         );
+
+        // X (press) -> override isReadyToShoot (see ln 92)
 
     }
 

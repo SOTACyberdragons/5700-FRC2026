@@ -87,7 +87,7 @@ public class ShooterSubsystem extends SubsystemBase {
     private static final TalonFXConfiguration motorTalonFXInitialConfigs = new TalonFXConfiguration()
         .withMotorOutput(
             new MotorOutputConfigs()
-                .withNeutralMode(NeutralModeValue.Brake)
+                .withNeutralMode(NeutralModeValue.Brake) // maybe use coast here?
         )
         .withCurrentLimits(
             new CurrentLimitsConfigs()
@@ -145,8 +145,12 @@ public class ShooterSubsystem extends SubsystemBase {
     public Current getleaderMotorTorqueCurrent() {
         return leaderMotorTorqueCurrent.getValue();
     }
-
-    public Trigger getTriggerWhenNearTarget(AngularVelocity threshold) {
+    /**
+     * 
+     * @param threshold
+     * @return true when {@link leaderMotorVelocity} is near the threshold
+     */
+    public Trigger getTriggerWhenNearTargetVelocity(AngularVelocity threshold) {
         return new Trigger(() -> {
             return leaderMotorVelocity.isNear(RotationsPerSecond.of(leaderMotorSetpointRequest.Velocity), threshold);
         });
