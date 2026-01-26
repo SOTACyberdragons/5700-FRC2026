@@ -1,9 +1,8 @@
 package frc.robot;
 
 public class States {
-    //TODO: Stop drivetrain when RobotState is not FREE_DRIVE or SHOOTING
     // (or if we want to allow for movement once aligned, such as moving in an arc such that we stay aligned)
-    //Elevator Slow Mode state
+    // Elevator Slow Mode state
     // public static enum ElevatorSlowMode{
     //     LOW(0.15),
     //     HIGH(0.15),
@@ -23,13 +22,13 @@ public class States {
     // public static ElevatorSlowMode elevatorSlowMode = ElevatorSlowMode.NONE;
 
     /////////////////////////////////
-    //Intake Position
+    // Intake Position
     public static enum IntakeState{
         UP,
         DOWN
     }
 
-    //States for robot
+    // States for robot
     public static enum RobotState{
         FREE_DRIVE,
         ALIGNING,

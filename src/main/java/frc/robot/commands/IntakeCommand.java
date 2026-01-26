@@ -10,6 +10,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 /** An example command that uses an example subsystem. */
 public class IntakeCommand extends Command {
   private final IntakeSubsystem m_intakeSubsystem;
+  private boolean isKilled = false;
 
   /**
    * Creates a new ExampleCommand.
@@ -37,6 +38,6 @@ public class IntakeCommand extends Command {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return false;
+    return isKilled;
   }
 }

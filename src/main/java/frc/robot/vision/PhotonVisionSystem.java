@@ -66,7 +66,7 @@ public class PhotonVisionSystem {
     ));
 
     PhotonCamera targetCamera = new PhotonCamera("camera");
-    Transform3d robotToCamera = new Transform3d(
+    Transform3d robotToCamera = new Transform3d( // TODO: update this based on the position of the camera on the robot
         /* X, Y, Z */
         new Translation3d(Meters.of(-0.5), Meters.of(0), Meters.of(0.5)),
         /* Roll, Pitch, Yaw */

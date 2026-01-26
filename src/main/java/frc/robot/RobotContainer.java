@@ -68,7 +68,7 @@ public class RobotContainer {
     private final SwerveRequest.PointWheelsAt point = new SwerveRequest.PointWheelsAt();
 
     private final SwerveRequest.FieldCentricFacingAngle targetHub = new SwerveRequest.FieldCentricFacingAngle()
-        .withHeadingPID(10, 0, 0)
+        .withHeadingPID(10, 0, 0) // TODO: add constants
         .withDriveRequestType(DriveRequestType.OpenLoopVoltage)
         .withForwardPerspective(ForwardPerspectiveValue.OperatorPerspective);
 
@@ -215,6 +215,7 @@ public class RobotContainer {
             m_intake.setTarget(()->IntakeSetpoint.Intake) // intake
             .alongWith(m_shooterSubsystem.setTarget(()->FlywheelSetpoint.Intake)) // this is feeding into the shooter?
         );
+        
         // Left Trigger (hold) -> Outtake all
         joystick.leftTrigger().whileTrue(
             m_intake.setTarget(()->IntakeSetpoint.Outtake) //outtake
@@ -225,13 +226,16 @@ public class RobotContainer {
         joystick.rightBumper().whileTrue(
             m_shooterSubsystem.setTarget(()->FlywheelSetpoint.Near) // First spin up the flywheel
             .alongWith(Commands.waitUntil(isFlywheelReadyToShoot) // wait until ready to shoot
-            .andThen(m_intake.setTarget(()->IntakeSetpoint.FeedToShoot))) // use the intake to push balls into the shooter
+                .andThen(m_intake.setTarget(()->IntakeSetpoint.FeedToShoot))
+            ) // use the intake to push balls into the shooter
         );
+
         // Right trigger (hold) -> Shoot(far)
         joystick.rightTrigger().whileTrue(
             m_shooterSubsystem.setTarget(()->FlywheelSetpoint.Far) // First spin up the flywheel
             .alongWith(Commands.waitUntil(isFlywheelReadyToShoot) // wait until ready to shoot
-            .andThen(m_intake.setTarget(()->IntakeSetpoint.FeedToShoot))) // use the intake to push balls into the shooter
+                .andThen(m_intake.setTarget(()->IntakeSetpoint.FeedToShoot))
+            ) // use the intake to push balls into the shooter
         );
 
         // X (press) -> override isReadyToShoot (see ln 92)
