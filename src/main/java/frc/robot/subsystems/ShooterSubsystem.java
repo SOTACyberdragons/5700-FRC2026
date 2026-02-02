@@ -40,7 +40,7 @@ import frc.robot.Constants;
 public class ShooterSubsystem extends SubsystemBase {
     /** Velocity setpoints for the flywheel. */
     public enum FlywheelSetpoint {
-        Intake(RotationsPerSecond.of(Constants.ShooterConstants.INTAKE_PRM)),
+        Intake(RotationsPerSecond.of(Constants.ShooterConstants.FEED_RPM)),
         Outtake(RotationsPerSecond.of(Constants.ShooterConstants.OUTTAKE_RPM)),
         Near(RotationsPerSecond.of(Constants.ShooterConstants.SHOOT_NEAR_RPM)),
         Far(RotationsPerSecond.of(Constants.ShooterConstants.SHOOT_FAR_RPM));
@@ -59,14 +59,14 @@ public class ShooterSubsystem extends SubsystemBase {
 
     /* leader and follower motors */
     private final CANBus kCANBus = new CANBus("*");
-    private final TalonFX leaderMotor = new TalonFX(Constants.IDs.SHOOTER_LEADER_MOTOR_ID, kCANBus);
+    public final TalonFX leaderMotor = new TalonFX(Constants.IDs.SHOOTER_LEADER_MOTOR_ID, kCANBus);
 
     /* device status signals */
     private final StatusSignal<AngularVelocity> leaderMotorVelocity = leaderMotor.getVelocity(false);
     private final StatusSignal<Current> leaderMotorTorqueCurrent = leaderMotor.getTorqueCurrent(false);
 
     /* controls used by the leader motors */
-    private final VelocityVoltage leaderMotorSetpointRequest = new VelocityVoltage(0);
+    public final VelocityVoltage leaderMotorSetpointRequest = new VelocityVoltage(0);
     private final CoastOut coastRequest = new CoastOut();
 
     /* simulation */
@@ -148,7 +148,7 @@ public class ShooterSubsystem extends SubsystemBase {
     /**
      * 
      * @param threshold
-     * @return true when {@link leaderMotorVelocity} is near the threshold
+     * @return true when leaderMotorVelocity is near the threshold
      */
     public Trigger getTriggerWhenNearTargetVelocity(AngularVelocity threshold) {
         return new Trigger(() -> {
@@ -156,19 +156,7 @@ public class ShooterSubsystem extends SubsystemBase {
         });
     }
 
-    /**
-     * Drives the flywheel to the provided velocity setpoint.
-     *
-     * @param setpoint Function returning the setpoint to apply
-     * @return Command to run
-     */
-    public Command setTarget(Supplier<FlywheelSetpoint> target) {
-        return run(() -> {
-            FlywheelSetpoint t = target.get();
-            leaderMotorSetpointRequest.withVelocity(t.leaderMotorTarget);
-            leaderMotor.setControl(leaderMotorSetpointRequest);
-        });
-    }
+
 
     /**
      * Stops driving the Flywheel. We use coast so no energy is used during the braking event.

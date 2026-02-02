@@ -4,6 +4,13 @@
 
 package frc.robot;
 
+import static edu.wpi.first.units.Units.Amps;
+
+import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
+import com.ctre.phoenix6.configs.MotorOutputConfigs;
+import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.signals.NeutralModeValue;
+
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide
  * numerical or boolean
@@ -19,6 +26,18 @@ package frc.robot;
 public final class Constants {
 	public static class OperatorConstants {
 		public static final int k_DRIVER_CONTROLLER_PORT = 0;
+
+		/** Configs common across all motors. */
+		private static final TalonFXConfiguration motorTalonFXInitialConfigs = new TalonFXConfiguration()
+			.withMotorOutput(
+				new MotorOutputConfigs()
+					.withNeutralMode(NeutralModeValue.Brake)
+			)
+			.withCurrentLimits(
+				new CurrentLimitsConfigs()
+					.withStatorCurrentLimit(Amps.of(120))
+					.withStatorCurrentLimitEnable(true)
+			);
 	}
 
 	public static class IDs {
@@ -118,7 +137,7 @@ public final class Constants {
 	public static class ShooterConstants {
 		public static final double SPINUP_THRESHOLD = 3.0;
 
-		public static final double INTAKE_PRM = 80;
+		public static final double FEED_RPM = 80;
 		public static final double OUTTAKE_RPM = -80;
 		public static final double SHOOT_NEAR_RPM = 70;
 		public static final double SHOOT_FAR_RPM = 80;

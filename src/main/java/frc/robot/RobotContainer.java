@@ -29,13 +29,20 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.Constants.ShooterConstants;
+import frc.robot.commands.HopperCommand;
+import frc.robot.commands.IntakeCommand;
+import frc.robot.commands.IntakePivotToggleCommand;
+import frc.robot.commands.ShootCommand;
+import frc.robot.commands.AutoCMDs.IntakeCMD;
+import frc.robot.commands.ShootCommand.ShooterSetpoint;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
+import frc.robot.subsystems.HopperSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
+import frc.robot.subsystems.IntakeSubsystem.IntakeSetpoint;
 import frc.robot.subsystems.ShooterSubsystem;
 import frc.robot.vision.LoggableRobotPose;
 import frc.robot.vision.PhotonVisionSystem;
-import frc.robot.subsystems.IntakeSubsystem.IntakeSetpoint;
 import frc.robot.subsystems.ShooterSubsystem.FlywheelSetpoint;
 
 
@@ -79,9 +86,11 @@ public class RobotContainer {
 
     // The robot's subsystems and commands are defined here...
     public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
-    public IntakeSubsystem m_intake = new IntakeSubsystem();
+    public IntakeSubsystem m_intakeSubsystem = new IntakeSubsystem();
     public ShooterSubsystem m_shooterSubsystem = new ShooterSubsystem();
+    public HopperSubsystem m_hopperSubsystem = new HopperSubsystem();
     public final PhotonVisionSystem vision = new PhotonVisionSystem(this::consumePhotonVisionMeasurement, () -> drivetrain.getState().Pose);
+
 
     // path follower
     private final SendableChooser<Command> autoChooser;
@@ -96,15 +105,30 @@ public class RobotContainer {
      */
     public RobotContainer() {
         // register all autoCMDs here
-        NamedCommands.registerCommand("Stop Shooting", m_shooterSubsystem.coastFlywheel().alongWith(m_intake.coastIntake()));
+        NamedCommands.registerCommand("Stop Shooting", m_shooterSubsystem.coastFlywheel().alongWith(m_intakeSubsystem.coastIntake()));
         /* Shoot commands need a bit of time to spool up the flywheel before feeding with the intake */
-        NamedCommands.registerCommand("Shoot Near", m_shooterSubsystem.setTarget(() -> FlywheelSetpoint.Near)
-                                                            .alongWith(Commands.waitUntil(isFlywheelReadyToShoot).andThen(m_intake.setTarget(() ->IntakeSetpoint.FeedToShoot))));
-        NamedCommands.registerCommand("Shoot Far", m_shooterSubsystem.setTarget(() -> FlywheelSetpoint.Far)
-                                                            .alongWith(Commands.waitUntil(isFlywheelReadyToShoot).andThen(m_intake.setTarget(() ->IntakeSetpoint.FeedToShoot))));
-        NamedCommands.registerCommand("Stop Intake", m_intake.coastIntake().alongWith(m_shooterSubsystem.coastFlywheel()));
-        NamedCommands.registerCommand("Intake Fuel", m_intake.setTarget(() -> IntakeSetpoint.Intake).alongWith(m_shooterSubsystem.setTarget(()-> FlywheelSetpoint.Intake)));
-        NamedCommands.registerCommand("Outtake Fuel", m_intake.setTarget(() -> IntakeSetpoint.Outtake).alongWith(m_shooterSubsystem.setTarget(()-> FlywheelSetpoint.Outtake)));
+        NamedCommands.registerCommand("Shoot Near", 
+            new ShootCommand(m_shooterSubsystem, ShooterSetpoint.Near)
+            .alongWith(Commands.waitUntil(isFlywheelReadyToShoot))
+            .andThen(
+                new HopperCommand(m_hopperSubsystem, true)
+                .alongWith(new IntakeCommand(m_intakeSubsystem, IntakeSetpoint.FeedToShoot))
+            )
+        );
+        NamedCommands.registerCommand("Shoot Far",
+            new ShootCommand(m_shooterSubsystem, ShooterSetpoint.Far)
+            .alongWith(Commands.waitUntil(isFlywheelReadyToShoot))
+            .andThen(new HopperCommand(m_hopperSubsystem, true))
+        );
+        NamedCommands.registerCommand("Stop Intake", m_intakeSubsystem.coastIntake().alongWith(m_shooterSubsystem.coastFlywheel()));
+        NamedCommands.registerCommand("Intake Fuel", 
+            new IntakeCommand(m_intakeSubsystem, IntakeSetpoint.Intake)
+            .alongWith(new ShootCommand(m_shooterSubsystem, ShooterSetpoint.Feed))
+        );
+        NamedCommands.registerCommand("Outtake Fuel", 
+            new IntakeCommand(m_intakeSubsystem, IntakeSetpoint.Outtake)
+            .alongWith(new ShootCommand(m_shooterSubsystem, ShooterSetpoint.Outtake))
+        );
         // auto stuff
         autoChooser = AutoBuilder.buildAutoChooser("Tests");
         SmartDashboard.putData("Auto Mode", autoChooser);
@@ -208,34 +232,43 @@ public class RobotContainer {
 
         /////// Shooting and intaking
         // A (toggle) -> pivot intake up or down
-        joystick.a().onTrue(m_intake.togglePivot());
+        joystick.a().onTrue(new IntakePivotToggleCommand(m_intakeSubsystem));
 
         // Left Bumper (hold) -> Intake
         joystick.leftBumper().whileTrue(
-            m_intake.setTarget(()->IntakeSetpoint.Intake) // intake
-            .alongWith(m_shooterSubsystem.setTarget(()->FlywheelSetpoint.Intake)) // this is feeding into the shooter?
+            // m_intakeSubsystem.setTarget(()->IntakeSetpoint.Intake) // intake
+            // .alongWith(m_shooterSubsystem.setTarget(()->FlywheelSetpoint.Intake)) // this is feeding into the shooter?
+            new IntakeCommand(m_intakeSubsystem, IntakeSetpoint.Intake)
         );
         
         // Left Trigger (hold) -> Outtake all
         joystick.leftTrigger().whileTrue(
-            m_intake.setTarget(()->IntakeSetpoint.Outtake) //outtake
-            .alongWith(m_shooterSubsystem.setTarget(()->FlywheelSetpoint.Outtake)) // also outtake shooter
+            // m_intakeSubsystem.setTarget(()->IntakeSetpoint.Outtake) //outtake
+            // .alongWith(m_shooterSubsystem.setTarget(()->FlywheelSetpoint.Outtake)) // also outtake shooter
+            new IntakeCommand(m_intakeSubsystem, IntakeSetpoint.Outtake)
+            .alongWith(new ShootCommand(m_shooterSubsystem, ShooterSetpoint.Outtake))
         );
 
         // Right bumper (hold) -> Shoot(near)
         joystick.rightBumper().whileTrue(
-            m_shooterSubsystem.setTarget(()->FlywheelSetpoint.Near) // First spin up the flywheel
-            .alongWith(Commands.waitUntil(isFlywheelReadyToShoot) // wait until ready to shoot
-                .andThen(m_intake.setTarget(()->IntakeSetpoint.FeedToShoot))
-            ) // use the intake to push balls into the shooter
+            // m_shooterSubsystem.setTarget(()->FlywheelSetpoint.Near) // First spin up the flywheel
+            // .alongWith(Commands.waitUntil(isFlywheelReadyToShoot) // wait until ready to shoot
+            //     // .andThen(m_intakeSubsystem.setTarget(()->IntakeSetpoint.FeedToShoot))
+            // ) // use the intake to push balls into the shooter
+            new ShootCommand(m_shooterSubsystem, ShooterSetpoint.Near)
+            .alongWith(Commands.waitUntil(isFlywheelReadyToShoot))
+            .andThen(new HopperCommand(m_hopperSubsystem, true))
         );
 
         // Right trigger (hold) -> Shoot(far)
         joystick.rightTrigger().whileTrue(
-            m_shooterSubsystem.setTarget(()->FlywheelSetpoint.Far) // First spin up the flywheel
-            .alongWith(Commands.waitUntil(isFlywheelReadyToShoot) // wait until ready to shoot
-                .andThen(m_intake.setTarget(()->IntakeSetpoint.FeedToShoot))
-            ) // use the intake to push balls into the shooter
+            // m_shooterSubsystem.setTarget(()->FlywheelSetpoint.Far) // First spin up the flywheel
+            // .alongWith(Commands.waitUntil(isFlywheelReadyToShoot) // wait until ready to shoot
+            //     // .andThen(m_intakeSubsystem.setTarget(()->IntakeSetpoint.FeedToShoot))
+            // ) // use the intake to push balls into the shooter
+            new ShootCommand(m_shooterSubsystem, ShooterSetpoint.Far)
+            .alongWith(Commands.waitUntil(isFlywheelReadyToShoot))
+            .andThen(new HopperCommand(m_hopperSubsystem, true))
         );
 
         // X (press) -> override isReadyToShoot (see ln 92)
