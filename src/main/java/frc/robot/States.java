@@ -24,8 +24,9 @@ public class States {
     /////////////////////////////////
     // Intake Position
     public static enum IntakeState{
-        UP,
-        DOWN
+        ON,
+        OFF,
+        OUTTAKE
     }
 
     // States for robot
@@ -39,7 +40,7 @@ public class States {
     public static RobotState robotState = RobotState.FREE_DRIVE;
 
 
-    public static IntakeState intakeState = IntakeState.UP;
+    public static IntakeState intakeState = IntakeState.OFF;
 
 
 

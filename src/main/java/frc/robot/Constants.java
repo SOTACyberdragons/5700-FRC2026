@@ -5,12 +5,10 @@
 package frc.robot;
 
 import static edu.wpi.first.units.Units.Amps;
-import static frc.robot.Constants.OperatorConstants.motorTalonFXInitialConfigs;
 
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.MotorOutputConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
-import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
 /**
@@ -113,42 +111,6 @@ public final class Constants {
 		public static final double INTAKE_RPM = 80;
 		public static final double OUTTAKE_RPM = -70;
 		public static final double FEED_TO_SHOOT_RPM = 90; // -90
-
-		public static final double TOP_INDEX_MOTOR_CONFIG_KP = 0.8;
-		public static final double TOP_INDEX_MOTOR_CONFIG_KI = 0;
-		public static final double TOP_INDEX_MOTOR_CONFIG_KD = 0;
-		public static final double TOP_INDEX_MOTOR_CONFIG_KS = 0;
-		public static final double TOP_INDEX_MOTOR_CONFIG_KV = 0.12;
-		public static final double TOP_INDEX_MOTOR_CONFIG_KA = 0;
-
-		public static final double INTAKE_PIVOT_MOTOR_CONFIG_KP = 0.8;
-		public static final double INTAKE_PIVOT_MOTOR_CONFIG_KI = 0;
-		public static final double INTAKE_PIVOT_MOTOR_CONFIG_KD = 0;
-		public static final double INTAKE_PIVOT_MOTOR_CONFIG_KS = 0;
-		public static final double INTAKE_PIVOT_MOTOR_CONFIG_KV = 0.12;
-		public static final double INTAKE_PIVOT_MOTOR_CONFIG_KA = 0;
-
-		public static final double INTAKE_PIVOT_UP = 0;
-		public static final double INTAKE_PIVOT_DOWN = 0;
-
-         private final TalonFXConfiguration PivotMotorConfigs = motorTalonFXInitialConfigs.clone()
-                 .withMotorOutput(
-                     motorTalonFXInitialConfigs.MotorOutput.clone()
-                         .withInverted(InvertedValue.CounterClockwise_Positive)
-                 )
-                 .withFeedback(
-                     motorTalonFXInitialConfigs.Feedback.clone()
-                         .withSensorToMechanismRatio(1)
-                 )
-                 .withSlot0(
-                     motorTalonFXInitialConfigs.Slot0.clone()
-                         .withKP(Constants.IntakeConstants.INTAKE_PIVOT_MOTOR_CONFIG_KP)
-                         .withKI(Constants.IntakeConstants.INTAKE_PIVOT_MOTOR_CONFIG_KI)
-                         .withKD(Constants.IntakeConstants.INTAKE_PIVOT_MOTOR_CONFIG_KD)
-                         .withKS(Constants.IntakeConstants.INTAKE_PIVOT_MOTOR_CONFIG_KS)
-                         .withKV(Constants.IntakeConstants.INTAKE_PIVOT_MOTOR_CONFIG_KV)
-                         .withKA(Constants.IntakeConstants.INTAKE_PIVOT_MOTOR_CONFIG_KA)
-                 );
 	}
 
 	public static class HopperConstants {

@@ -1,8 +1,9 @@
+
 // Copyright (c) FIRST and other WPILib contributors.
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
-package frc.robot.commands;
+package frc.robot.commands.AutoCMDs;
 
 import frc.robot.Constants;
 import frc.robot.subsystems.IntakeSubsystem;
@@ -10,7 +11,7 @@ import frc.robot.subsystems.IntakeSubsystem;
 import edu.wpi.first.wpilibj2.command.Command;
 
 /** An example command that uses an example subsystem. */
-public class IntakeCommand extends Command {
+public class OuttakeCMD extends Command {
 	private final IntakeSubsystem m_intakeSubsystem;
 
 	private boolean isKilled = false;
@@ -22,7 +23,7 @@ public class IntakeCommand extends Command {
 	 * 
 	 * @param setpoint The setpoint to go to. Should be of type IntakeSetpoint
 	 */
-	public IntakeCommand(IntakeSubsystem intakeSubsystem) {
+	public OuttakeCMD(IntakeSubsystem intakeSubsystem) {
 		m_intakeSubsystem = intakeSubsystem;
 
 		addRequirements(intakeSubsystem);
@@ -36,7 +37,7 @@ public class IntakeCommand extends Command {
 	// Called every time the scheduler runs while the command is scheduled.
 	@Override
 	public void execute() {
-		m_intakeSubsystem.intakVelocityVoltage.withVelocity(Constants.IntakeConstants.INTAKE_RPM);
+		m_intakeSubsystem.intakVelocityVoltage.withVelocity(Constants.IntakeConstants.OUTTAKE_RPM);
 		m_intakeSubsystem.intakeMotor.setControl(m_intakeSubsystem.intakVelocityVoltage);
 
 	}

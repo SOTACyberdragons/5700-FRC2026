@@ -30,15 +30,16 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.Constants.ShooterConstants;
 import frc.robot.commands.HopperRunCommand;
-import frc.robot.commands.IntakeCommand;
-import frc.robot.commands.IntakePivotToggleCommand;
+import frc.robot.commands.OuttakeCommand;
+import frc.robot.commands.IntakeToggleCommand;
 import frc.robot.commands.ShootCommand;
+import frc.robot.commands.AutoCMDs.IntakeCMD;
+import frc.robot.commands.AutoCMDs.OuttakeCMD;
 import frc.robot.commands.ShootCommand.ShooterSetpoint;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.HopperSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
-import frc.robot.subsystems.IntakeSubsystem.IntakeSetpoint;
 import frc.robot.subsystems.ShooterSubsystem;
 import frc.robot.vision.LoggableRobotPose;
 import frc.robot.vision.PhotonVisionSystem;
@@ -109,7 +110,6 @@ public class RobotContainer {
             .alongWith(Commands.waitUntil(isFlywheelReadyToShoot))
             .andThen(
                 new HopperRunCommand(m_hopperSubsystem)
-                .alongWith(new IntakeCommand(m_intakeSubsystem, IntakeSetpoint.FeedToShoot))
             )
         );
         NamedCommands.registerCommand("Shoot Far",
@@ -124,12 +124,12 @@ public class RobotContainer {
         );
 
         NamedCommands.registerCommand("Intake Fuel", 
-            new IntakeCommand(m_intakeSubsystem, IntakeSetpoint.Intake)
+            new IntakeCMD(m_intakeSubsystem)
             .alongWith(new ShootCommand(m_shooterSubsystem, ShooterSetpoint.Feed))
         );
 
         NamedCommands.registerCommand("Outtake Fuel", 
-            new IntakeCommand(m_intakeSubsystem, IntakeSetpoint.Outtake)
+            new OuttakeCMD(m_intakeSubsystem)
             .alongWith(new ShootCommand(m_shooterSubsystem, ShooterSetpoint.Outtake))
         );
 
@@ -235,21 +235,19 @@ public class RobotContainer {
 		joystick.back().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
 
         /////// Shooting and intaking
-        // A (toggle) -> pivot intake up or down
-        joystick.a().onTrue(new IntakePivotToggleCommand(m_intakeSubsystem));
 
-        // Left Bumper (hold) -> Intake
-        joystick.leftBumper().whileTrue(
+        // Left Bumper (toggle) -> Intake
+        joystick.leftBumper().onTrue(
             // m_intakeSubsystem.setTarget(()->IntakeSetpoint.Intake) // intake
             // .alongWith(m_shooterSubsystem.setTarget(()->FlywheelSetpoint.Intake)) // this is feeding into the shooter?
-            new IntakeCommand(m_intakeSubsystem, IntakeSetpoint.Intake)
+            new IntakeToggleCommand(m_intakeSubsystem)
         );
         
         // Left Trigger (hold) -> Outtake all
         joystick.leftTrigger().whileTrue(
             // m_intakeSubsystem.setTarget(()->IntakeSetpoint.Outtake) //outtake
             // .alongWith(m_shooterSubsystem.setTarget(()->FlywheelSetpoint.Outtake)) // also outtake shooter
-            new IntakeCommand(m_intakeSubsystem, IntakeSetpoint.Outtake)
+            new OuttakeCommand(m_intakeSubsystem)
             .alongWith(new ShootCommand(m_shooterSubsystem, ShooterSetpoint.Outtake))
         );
 
@@ -276,6 +274,11 @@ public class RobotContainer {
         );
 
         // X (press) -> override isReadyToShoot (see ln 92)
+
+        // A (hold) -> Run hopper (useful for agitation)
+        joystick.a().whileTrue(
+            new HopperRunCommand(m_hopperSubsystem)
+        );
 
     }
 

@@ -5,13 +5,16 @@
 package frc.robot.commands;
 
 import frc.robot.Constants;
+
 import frc.robot.subsystems.IntakeSubsystem;
 
 import edu.wpi.first.wpilibj2.command.Command;
 
 /** An example command that uses an example subsystem. */
-public class IntakeCommand extends Command {
+public class IntakeToggleCommand extends Command {
 	private final IntakeSubsystem m_intakeSubsystem;
+
+	private static boolean intakeIntaking = false;
 
 	private boolean isKilled = false;
 
@@ -22,8 +25,9 @@ public class IntakeCommand extends Command {
 	 * 
 	 * @param setpoint The setpoint to go to. Should be of type IntakeSetpoint
 	 */
-	public IntakeCommand(IntakeSubsystem intakeSubsystem) {
+	public IntakeToggleCommand(IntakeSubsystem intakeSubsystem) {
 		m_intakeSubsystem = intakeSubsystem;
+
 
 		addRequirements(intakeSubsystem);
 	}
@@ -36,14 +40,21 @@ public class IntakeCommand extends Command {
 	// Called every time the scheduler runs while the command is scheduled.
 	@Override
 	public void execute() {
-		m_intakeSubsystem.intakVelocityVoltage.withVelocity(Constants.IntakeConstants.INTAKE_RPM);
-		m_intakeSubsystem.intakeMotor.setControl(m_intakeSubsystem.intakVelocityVoltage);
-
+		if (intakeIntaking){ // if the intake was intaking, turn it off
+			m_intakeSubsystem.coastIntake();
+			intakeIntaking = false;
+		} else { // otherwise, turn it on to the setpoint
+			m_intakeSubsystem.intakVelocityVoltage.withVelocity(Constants.IntakeConstants.INTAKE_RPM);
+			m_intakeSubsystem.intakeMotor.setControl(m_intakeSubsystem.intakVelocityVoltage);
+		}
 	}
 
 	// Called once the command ends or is interrupted.
 	@Override
-	public void end(boolean interrupted) {}
+	public void end(boolean interrupted) {
+		// when the command is finished (the driver stops pressing the button) set intakeIntaking to true if we were intaking
+		intakeIntaking = true;
+	}
 
 	// Returns true when the command should end.
 	@Override

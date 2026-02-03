@@ -5,12 +5,13 @@
 package frc.robot.commands;
 
 import frc.robot.Constants;
+
 import frc.robot.subsystems.IntakeSubsystem;
 
 import edu.wpi.first.wpilibj2.command.Command;
 
 /** An example command that uses an example subsystem. */
-public class IntakeCommand extends Command {
+public class OuttakeCommand extends Command {
 	private final IntakeSubsystem m_intakeSubsystem;
 
 	private boolean isKilled = false;
@@ -22,7 +23,7 @@ public class IntakeCommand extends Command {
 	 * 
 	 * @param setpoint The setpoint to go to. Should be of type IntakeSetpoint
 	 */
-	public IntakeCommand(IntakeSubsystem intakeSubsystem) {
+	public OuttakeCommand(IntakeSubsystem intakeSubsystem) {
 		m_intakeSubsystem = intakeSubsystem;
 
 		addRequirements(intakeSubsystem);
@@ -36,7 +37,7 @@ public class IntakeCommand extends Command {
 	// Called every time the scheduler runs while the command is scheduled.
 	@Override
 	public void execute() {
-		m_intakeSubsystem.intakVelocityVoltage.withVelocity(Constants.IntakeConstants.INTAKE_RPM);
+		m_intakeSubsystem.intakVelocityVoltage.withVelocity(Constants.IntakeConstants.OUTTAKE_RPM);
 		m_intakeSubsystem.intakeMotor.setControl(m_intakeSubsystem.intakVelocityVoltage);
 
 	}
