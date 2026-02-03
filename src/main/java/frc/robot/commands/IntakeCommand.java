@@ -27,7 +27,7 @@ public class IntakeCommand extends Command {
 	/**
 	 * Creates a new ExampleCommand.
 	 *
-	 * @param subsystem The subsystem used by this command.
+	 * @param intakeSubsystem The subsystem used by this command.
 	 * 
 	 * @param setpoint The setpoint to go to. Should be of type IntakeSetpoint
 	 */

@@ -22,18 +22,17 @@ import static edu.wpi.first.units.Units.RotationsPerSecond;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-import frc.robot.Constants;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.Constants.ShooterConstants;
-import frc.robot.commands.HopperCommand;
+import frc.robot.commands.HopperRunCommand;
 import frc.robot.commands.IntakeCommand;
 import frc.robot.commands.IntakePivotToggleCommand;
 import frc.robot.commands.ShootCommand;
-import frc.robot.commands.AutoCMDs.IntakeCMD;
 import frc.robot.commands.ShootCommand.ShooterSetpoint;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
@@ -43,8 +42,6 @@ import frc.robot.subsystems.IntakeSubsystem.IntakeSetpoint;
 import frc.robot.subsystems.ShooterSubsystem;
 import frc.robot.vision.LoggableRobotPose;
 import frc.robot.vision.PhotonVisionSystem;
-import frc.robot.subsystems.ShooterSubsystem.FlywheelSetpoint;
-
 
 
 /**
@@ -111,24 +108,31 @@ public class RobotContainer {
             new ShootCommand(m_shooterSubsystem, ShooterSetpoint.Near)
             .alongWith(Commands.waitUntil(isFlywheelReadyToShoot))
             .andThen(
-                new HopperCommand(m_hopperSubsystem, true)
+                new HopperRunCommand(m_hopperSubsystem)
                 .alongWith(new IntakeCommand(m_intakeSubsystem, IntakeSetpoint.FeedToShoot))
             )
         );
         NamedCommands.registerCommand("Shoot Far",
             new ShootCommand(m_shooterSubsystem, ShooterSetpoint.Far)
             .alongWith(Commands.waitUntil(isFlywheelReadyToShoot))
-            .andThen(new HopperCommand(m_hopperSubsystem, true))
+            .andThen(new HopperRunCommand(m_hopperSubsystem))
         );
-        NamedCommands.registerCommand("Stop Intake", m_intakeSubsystem.coastIntake().alongWith(m_shooterSubsystem.coastFlywheel()));
+
+        NamedCommands.registerCommand("Coast All", 
+            m_intakeSubsystem.coastIntake()
+            .alongWith(m_shooterSubsystem.coastFlywheel())
+        );
+
         NamedCommands.registerCommand("Intake Fuel", 
             new IntakeCommand(m_intakeSubsystem, IntakeSetpoint.Intake)
             .alongWith(new ShootCommand(m_shooterSubsystem, ShooterSetpoint.Feed))
         );
+
         NamedCommands.registerCommand("Outtake Fuel", 
             new IntakeCommand(m_intakeSubsystem, IntakeSetpoint.Outtake)
             .alongWith(new ShootCommand(m_shooterSubsystem, ShooterSetpoint.Outtake))
         );
+
         // auto stuff
         autoChooser = AutoBuilder.buildAutoChooser("Tests");
         SmartDashboard.putData("Auto Mode", autoChooser);
@@ -137,7 +141,7 @@ public class RobotContainer {
         configureBindings();
 
         // Warmup PathPlanner to avoid Java pauses
-        FollowPathCommand.warmupCommand().schedule();
+        CommandScheduler.getInstance().schedule(FollowPathCommand.warmupCommand());
     }
 
     /**
@@ -257,7 +261,7 @@ public class RobotContainer {
             // ) // use the intake to push balls into the shooter
             new ShootCommand(m_shooterSubsystem, ShooterSetpoint.Near)
             .alongWith(Commands.waitUntil(isFlywheelReadyToShoot))
-            .andThen(new HopperCommand(m_hopperSubsystem, true))
+            .andThen(new HopperRunCommand(m_hopperSubsystem))
         );
 
         // Right trigger (hold) -> Shoot(far)
@@ -268,7 +272,7 @@ public class RobotContainer {
             // ) // use the intake to push balls into the shooter
             new ShootCommand(m_shooterSubsystem, ShooterSetpoint.Far)
             .alongWith(Commands.waitUntil(isFlywheelReadyToShoot))
-            .andThen(new HopperCommand(m_hopperSubsystem, true))
+            .andThen(new HopperRunCommand(m_hopperSubsystem))
         );
 
         // X (press) -> override isReadyToShoot (see ln 92)
@@ -276,6 +280,8 @@ public class RobotContainer {
     }
 
 
+
+  
 
     /**
      * Use this to pass the autonomous command to the main {@link Robot} class.

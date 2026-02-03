@@ -79,82 +79,10 @@ public class IntakeSubsystem extends SubsystemBase {
     private final StatusSignal<AngularVelocity> intakeMotorVelocity = intakeMotor.getVelocity(false);
     private final StatusSignal<Current> intakeMotorTorqueCurrent = intakeMotor.getTorqueCurrent(false);
 
-
-
-
-    // private final TalonFXConfiguration PivotMotorConfigs = motorTalonFXInitialConfigs.clone()
-    //         .withMotorOutput(
-    //             motorTalonFXInitialConfigs.MotorOutput.clone()
-    //                 .withInverted(InvertedValue.CounterClockwise_Positive)
-    //         )
-    //         .withFeedback(
-    //             motorTalonFXInitialConfigs.Feedback.clone()
-    //                 .withSensorToMechanismRatio(1)
-    //         )
-    //         .withSlot0(
-    //             motorTalonFXInitialConfigs.Slot0.clone()
-    //                 .withKP(Constants.IntakeConstants.INTAKE_PIVOT_MOTOR_CONFIG_KP)
-    //                 .withKI(Constants.IntakeConstants.INTAKE_PIVOT_MOTOR_CONFIG_KI)
-    //                 .withKD(Constants.IntakeConstants.INTAKE_PIVOT_MOTOR_CONFIG_KD)
-    //                 .withKS(Constants.IntakeConstants.INTAKE_PIVOT_MOTOR_CONFIG_KS)
-    //                 .withKV(Constants.IntakeConstants.INTAKE_PIVOT_MOTOR_CONFIG_KV)
-    //                 .withKA(Constants.IntakeConstants.INTAKE_PIVOT_MOTOR_CONFIG_KA)
-    //         );
-
-
 	/** Creates a new IntakeSubsystem. */
 	public IntakeSubsystem() {
 
 	}
-
-	/**
-	//  * Example command factory method.
-	//  *
-	//  * @return a command
-	//  */
-	// public Command exampleMethodCommand() {
-	// 	// Inline construction of command goes here.
-	// 	// Subsystem::RunOnce implicitly requires `this` subsystem.
-	// 	return runOnce(
-	// 		() -> {
-	// 			/* one-time action goes here */
-	// 		});
-	// }
-
-    /**
-     * Drives the flywheel to the provided velocity setpoint.
-     *
-     * @param setpoint Function returning the setpoint to apply
-     * @return Command to run
-     */
-    public Command setTarget(double target) {
-        return run(() -> {
-            intakVelocityVoltage.withVelocity(target);
-            intakeMotor.setControl(intakVelocityVoltage);
-        });
-    }
-
-    public double getPivotStateAsDouble() {
-        // Return the current intake pivot setpoint based on the global state
-        return frc.robot.States.intakeState == IntakeState.UP ? IntakeConstants.INTAKE_PIVOT_UP : IntakeConstants.INTAKE_PIVOT_DOWN;
-    }
-
-    public Command setPivot(double target) {
-		return run(() -> {
-            // Update global state so other code (RobotContainer, etc.) can observe pivot state
-            frc.robot.States.intakeState = (target == IntakeConstants.INTAKE_PIVOT_UP) ? IntakeState.UP : IntakeState.DOWN;
-            // Command the pivot motor to move to the requested position
-            intakePivotPosition.withPosition(target);
-            intakePivotMotor.setControl(intakePivotPosition);
-		});
-	}
-
-    public Command togglePivot() {
-        return run(() -> {
-            double currentIntakePivotPos = getPivotStateAsDouble();
-            setPivot(currentIntakePivotPos == IntakeConstants.INTAKE_PIVOT_UP ? IntakeConstants.INTAKE_PIVOT_DOWN : IntakeConstants.INTAKE_PIVOT_UP);
-        });
-    }
 
 	/**
      * Stops driving the Intake. We use coast so no energy is used during the braking event.
@@ -166,23 +94,6 @@ public class IntakeSubsystem extends SubsystemBase {
             intakeMotor.setControl(coastRequest);
         });
     }
-
-    public Command coastPivotIntake() {
-        return runOnce(() -> {
-            intakePivotMotor.setControl(pivotCoastRequest);
-        });
-    }
-
-	/**
-	 * An example method querying a boolean state of the subsystem (for example, a
-	 * digital sensor).
-	 *
-	 * @return value of some boolean subsystem state, such as a digital sensor.
-	 */
-	public boolean exampleCondition() {
-		// Query some boolean state, such as a digital sensor.
-		return false;
-	}
 
 	@Override
 	public void periodic() {

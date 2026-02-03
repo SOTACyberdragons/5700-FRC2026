@@ -5,10 +5,12 @@
 package frc.robot;
 
 import static edu.wpi.first.units.Units.Amps;
+import static frc.robot.Constants.OperatorConstants.motorTalonFXInitialConfigs;
 
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.MotorOutputConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
 /**
@@ -28,7 +30,7 @@ public final class Constants {
 		public static final int k_DRIVER_CONTROLLER_PORT = 0;
 
 		/** Configs common across all motors. */
-		private static final TalonFXConfiguration motorTalonFXInitialConfigs = new TalonFXConfiguration()
+		static final TalonFXConfiguration motorTalonFXInitialConfigs = new TalonFXConfiguration()
 			.withMotorOutput(
 				new MotorOutputConfigs()
 					.withNeutralMode(NeutralModeValue.Brake)
@@ -128,6 +130,25 @@ public final class Constants {
 
 		public static final double INTAKE_PIVOT_UP = 0;
 		public static final double INTAKE_PIVOT_DOWN = 0;
+
+         private final TalonFXConfiguration PivotMotorConfigs = motorTalonFXInitialConfigs.clone()
+                 .withMotorOutput(
+                     motorTalonFXInitialConfigs.MotorOutput.clone()
+                         .withInverted(InvertedValue.CounterClockwise_Positive)
+                 )
+                 .withFeedback(
+                     motorTalonFXInitialConfigs.Feedback.clone()
+                         .withSensorToMechanismRatio(1)
+                 )
+                 .withSlot0(
+                     motorTalonFXInitialConfigs.Slot0.clone()
+                         .withKP(Constants.IntakeConstants.INTAKE_PIVOT_MOTOR_CONFIG_KP)
+                         .withKI(Constants.IntakeConstants.INTAKE_PIVOT_MOTOR_CONFIG_KI)
+                         .withKD(Constants.IntakeConstants.INTAKE_PIVOT_MOTOR_CONFIG_KD)
+                         .withKS(Constants.IntakeConstants.INTAKE_PIVOT_MOTOR_CONFIG_KS)
+                         .withKV(Constants.IntakeConstants.INTAKE_PIVOT_MOTOR_CONFIG_KV)
+                         .withKA(Constants.IntakeConstants.INTAKE_PIVOT_MOTOR_CONFIG_KA)
+                 );
 	}
 
 	public static class HopperConstants {

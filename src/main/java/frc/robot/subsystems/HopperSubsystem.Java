@@ -12,9 +12,9 @@ import com.ctre.phoenix6.controls.DutyCycleOut;
 import frc.robot.Constants;
 
 public class HopperSubsystem extends SubsystemBase {
-    private TalonFX hopperMotor = new TalonFX(Constants.IDs.HOPPER_MOTOR_ID);
+    public TalonFX hopperMotor = new TalonFX(Constants.IDs.HOPPER_MOTOR_ID);
 	
-    private DutyCycleOut percentOutput = new DutyCycleOut(0);
+    public DutyCycleOut hopperPercentOutput = new DutyCycleOut(0);
 	private final CoastOut coastRequest = new CoastOut();
 
 	/** Creates a new HopperSubsystem. */
