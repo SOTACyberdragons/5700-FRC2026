@@ -40,6 +40,7 @@ import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.HopperSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
+import frc.robot.subsystems.LED;
 import frc.robot.subsystems.ShooterSubsystem;
 import frc.robot.vision.LoggableRobotPose;
 import frc.robot.vision.PhotonVisionSystem;
@@ -84,10 +85,11 @@ public class RobotContainer {
 
     // The robot's subsystems and commands are defined here...
     public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
-    public IntakeSubsystem m_intakeSubsystem = new IntakeSubsystem();
-    public ShooterSubsystem m_shooterSubsystem = new ShooterSubsystem();
-    public HopperSubsystem m_hopperSubsystem = new HopperSubsystem();
+    public final IntakeSubsystem m_intakeSubsystem = new IntakeSubsystem();
+    public final ShooterSubsystem m_shooterSubsystem = new ShooterSubsystem();
+    public final HopperSubsystem m_hopperSubsystem = new HopperSubsystem();
     public final PhotonVisionSystem vision = new PhotonVisionSystem(this::consumePhotonVisionMeasurement, () -> drivetrain.getState().Pose);
+    public final LED m_led = new LED();
 
 
     // path follower
@@ -195,6 +197,7 @@ public class RobotContainer {
                         .withRotationalRate(
                             rotLimiter.calculate(-joystick.getRightX()) * MaxAngularRate); // Drive counterclockwise with negative X (left)
                 } else {
+                    SmartDashboard.putBoolean("Vision Activated", true);
                     /* Use the hub target to determine where to aim TODO: maybe point the wheels so that they are perpendicular to the hub? Do this only if we go with a non-variable shooter*/
                     return targetHub.withTargetDirection(vision.getHeadingToHubFieldRelative())
                         .withVelocityX(-joystick.getLeftY() * MaxSpeed) // Drive forward with negative Y (forward)
@@ -202,6 +205,8 @@ public class RobotContainer {
                 }
             }
         ));
+
+        joystick.y().onFalse(Commands.runOnce(() -> SmartDashboard.putBoolean("Vision Activated", false)));
 
         /* TODO: would be really cool to add a button for going over the bump. it would be a hold that 
             * gets the current rotation,
@@ -300,6 +305,17 @@ public class RobotContainer {
         public void consumePhotonVisionMeasurement(LoggableRobotPose pose) {
         /* Super simple, should modify to support variable standard deviations */
         drivetrain.addVisionMeasurement(pose.estimatedPose.toPose2d(), pose.timestampSeconds);
+    }
+
+    public void updateLEDs() { // make sure to consider the priority of these if/else statements when editing this function
+        if (SmartDashboard.getBoolean("Vision Activated", false)) {
+            m_led.setAllBlink(Constants.LEDConstants.COLOR_GREEN, Constants.LEDConstants.BLINK_TIME);
+        } else if (SmartDashboard.getBoolean("Intaking", false)){
+            m_led.setAll(Constants.LEDConstants.COLOR_PURPLE);
+        } else if (SmartDashboard.getBoolean("Shooting", false)){
+            m_led.setAll(Constants.LEDConstants.COLOR_GREEN);
+        }
+
     }
 
     public void periodic() {

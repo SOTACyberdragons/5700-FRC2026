@@ -11,6 +11,8 @@ import com.ctre.phoenix6.configs.MotorOutputConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
+import edu.wpi.first.wpilibj.util.Color;
+
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide
  * numerical or boolean
@@ -133,7 +135,25 @@ public final class Constants {
 		public static final double LEADER_MOTOR_CONFIG_KA = 0;
 	}
 
-	public static class ClimberConstants {
-
+	public static class LEDConstants {
+		public static final int PWM_PORT = 1;
+		public static final int LED_LENGTH = 38;
+		public static final double BLINK_TIME = 0.1;
+		// Colors
+		/*
+		 * teleop
+		 * vision
+		 * shooting
+		 * intaking		 
+		 * alliance shift?
+		 * - prob not, just have co-driver do it
+		*/
+		
+		public static final Color COLOR_GREEN = new Color(0,255,0);
+		public static final Color COLOR_RED = new Color(255,0,0);
+		public static final Color COLOR_BLUE = new Color(0,0,255);
+		public static final Color COLOR_YELLOW = new Color(255,255,0);
+		public static final Color COLOR_PURPLE = new Color(255,0,255);
+		public static final Color COLOR_ORANGE = new Color(255,127,0);
 	}
 }
