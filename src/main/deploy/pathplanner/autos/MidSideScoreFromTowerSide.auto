@@ -7,13 +7,19 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Drive Into Wall"
+            "pathName": "MidMoveToTowerSide"
           }
         },
         {
           "type": "named",
           "data": {
-            "name": "Shoot Near"
+            "name": "TargetHub"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Shoot Far"
           }
         },
         {
@@ -32,6 +38,6 @@
     }
   },
   "resetOdom": true,
-  "folder": null,
+  "folder": "Mid",
   "choreoAuto": false
 }

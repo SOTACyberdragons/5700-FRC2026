@@ -3,25 +3,25 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 3.5,
-        "y": 4.025
+        "x": 3.60936286960482,
+        "y": 1.4021795736406943
       },
       "prevControl": null,
       "nextControl": {
-        "x": 3.25,
-        "y": 4.025
+        "x": 0.936715815933296,
+        "y": 1.385281101107063
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 3.58,
-        "y": 4.025
+        "x": 0.8259602141203708,
+        "y": 5.959160083912037
       },
       "prevControl": {
-        "x": 3.8578775024637437,
-        "y": 4.025
+        "x": 2.4881876226177138,
+        "y": 5.9538983674327355
       },
       "nextControl": null,
       "isLocked": false,
@@ -42,13 +42,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 180.0
+    "rotation": 0.0
   },
   "reversed": false,
-  "folder": "Only Score Autos",
+  "folder": "Right Starting",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 180.0
+    "rotation": 0.0
   },
   "useDefaultConstraints": true
 }

@@ -105,7 +105,6 @@ public class RobotContainer {
      */
     public RobotContainer() {
         // register all autoCMDs here
-        NamedCommands.registerCommand("Stop Shooting", m_shooterSubsystem.coastFlywheel().alongWith(m_intakeSubsystem.coastIntake()));
         /* Shoot commands need a bit of time to spool up the flywheel before feeding with the intake */
         NamedCommands.registerCommand("Shoot Near", 
             new ShootCommand(m_shooterSubsystem, ShooterSetpoint.Near)
@@ -125,14 +124,18 @@ public class RobotContainer {
             .alongWith(m_shooterSubsystem.coastFlywheel())
         );
 
-        NamedCommands.registerCommand("Intake Fuel", 
+        NamedCommands.registerCommand("Intake", 
             new IntakeCMD(m_intakeSubsystem)
             .alongWith(new ShootCommand(m_shooterSubsystem, ShooterSetpoint.Feed))
         );
 
-        NamedCommands.registerCommand("Outtake Fuel", 
+        NamedCommands.registerCommand("Outtake", 
             new OuttakeCMD(m_intakeSubsystem)
             .alongWith(new ShootCommand(m_shooterSubsystem, ShooterSetpoint.Outtake))
+        );
+
+        NamedCommands.registerCommand("Target Hub", 
+            Commands.runOnce(() -> targetHub.withTargetDirection(vision.getHeadingToHubFieldRelative()))
         );
 
         // auto stuff
@@ -205,7 +208,7 @@ public class RobotContainer {
                 }
             }
         ));
-
+        // reset "vision activated" boolean on the smartdashboard when we stop driving with vision
         joystick.y().onFalse(Commands.runOnce(() -> SmartDashboard.putBoolean("Vision Activated", false)));
 
         /* TODO: would be really cool to add a button for going over the bump. it would be a hold that 
@@ -265,6 +268,7 @@ public class RobotContainer {
             new ShootCommand(m_shooterSubsystem, ShooterSetpoint.Near)
             .alongWith(Commands.waitUntil(isFlywheelReadyToShoot))
             .andThen(new HopperRunCommand(m_hopperSubsystem))
+            .alongWith(Commands.runOnce(() -> SmartDashboard.putBoolean("Shooting:", true)))
         );
 
         // Right trigger (hold) -> Shoot(far)

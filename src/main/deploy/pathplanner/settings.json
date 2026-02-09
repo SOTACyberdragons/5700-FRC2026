@@ -3,10 +3,14 @@
   "robotLength": 0.762,
   "holonomicMode": true,
   "pathFolders": [
-    "Only Score Autos",
-    "Stash Autos"
+    "Left Starting",
+    "Mid Starting",
+    "Generic",
+    "Right Starting"
   ],
-  "autoFolders": [],
+  "autoFolders": [
+    "Mid"
+  ],
   "defaultMaxVel": 3.0,
   "defaultMaxAccel": 3.0,
   "defaultMaxAngVel": 540.0,
