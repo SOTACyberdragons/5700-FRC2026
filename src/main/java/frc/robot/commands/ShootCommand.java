@@ -6,6 +6,9 @@ package frc.robot.commands;
 
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 
+import com.ctre.phoenix6.controls.Follower;
+import com.ctre.phoenix6.signals.MotorAlignmentValue;
+
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.wpilibj2.command.Command;
 
@@ -20,7 +23,6 @@ public class ShootCommand extends Command {
 	private boolean isKilled = false;
 
 	public enum ShooterSetpoint {
-        Feed(RotationsPerSecond.of(Constants.ShooterConstants.FEED_RPM)),
         Outtake(RotationsPerSecond.of(Constants.ShooterConstants.OUTTAKE_RPM)),
         Near(RotationsPerSecond.of(Constants.ShooterConstants.SHOOT_NEAR_RPM)),
         Far(RotationsPerSecond.of(Constants.ShooterConstants.SHOOT_FAR_RPM));
@@ -48,8 +50,12 @@ public class ShootCommand extends Command {
 	// Called every time the scheduler runs while the command is scheduled.
 	@Override
 	public void execute() {
-		m_shooterSubsystem.leaderMotorSetpointRequest.withVelocity(shooterSetpoint.leaderMotorTarget);
-        m_shooterSubsystem.leaderMotor.setControl(m_shooterSubsystem.leaderMotorSetpointRequest);
+		// set the velocity of the velocityvoltage object to the setpoint of the command
+		m_shooterSubsystem.leaderMotorVelocityVoltage.withVelocity(shooterSetpoint.leaderMotorTarget);
+		// control the motor with the velocityvoltage
+        m_shooterSubsystem.leaderMotor.setControl(m_shooterSubsystem.leaderMotorVelocityVoltage);
+		// set the follower motor to follow the leader motor
+		m_shooterSubsystem.followerMotor.setControl(new Follower(Constants.IDs.SHOOTER_LEADER_MOTOR_ID, MotorAlignmentValue.Opposed));
 	}
 
 	// Called once the command ends or is interrupted.

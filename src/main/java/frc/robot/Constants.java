@@ -47,10 +47,11 @@ public final class Constants {
 		public static final int INTAKE_MOTOR_ID = 0;
 
 		public static final int INTAKE_PIVOT_MOTOR_ID = 0;
-		public static final int INTAKE_TOP_INDEX_ID = 21;
+		public static final int INTAKE_TOP_INDEX_ID = 0;
 
 		public static final int HOPPER_MOTOR_ID = 0;
 		public static final int SHOOTER_LEADER_MOTOR_ID = 0;
+		public static final int SHOOTER_FOLLOWER_MOTOR_ID = 0;
 		public static final int CLIMBER_MOTOR_ID = 0;
 	}
 

@@ -36,20 +36,6 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants;
 
 public class ShooterSubsystem extends SubsystemBase {
-    /** Velocity setpoints for the flywheel. */
-    public enum FlywheelSetpoint {
-        Intake(RotationsPerSecond.of(Constants.ShooterConstants.FEED_RPM)),
-        Outtake(RotationsPerSecond.of(Constants.ShooterConstants.OUTTAKE_RPM)),
-        Near(RotationsPerSecond.of(Constants.ShooterConstants.SHOOT_NEAR_RPM)),
-        Far(RotationsPerSecond.of(Constants.ShooterConstants.SHOOT_FAR_RPM));
-
-        /** The velocity target of the setpoint. */
-        public final AngularVelocity leaderMotorTarget;
-
-        private FlywheelSetpoint(AngularVelocity leaderMotorTarget) {
-            this.leaderMotorTarget = leaderMotorTarget;
-        }
-    }
 
     private static final int kNumConfigAttempts = 2;
 
@@ -58,16 +44,17 @@ public class ShooterSubsystem extends SubsystemBase {
     /* leader and follower motors */
     private final CANBus kCANBus = new CANBus("*");
     public final TalonFX leaderMotor = new TalonFX(Constants.IDs.SHOOTER_LEADER_MOTOR_ID, kCANBus);
+    public final TalonFX followerMotor = new TalonFX(Constants.IDs.SHOOTER_FOLLOWER_MOTOR_ID, kCANBus);
 
     /* device status signals */
     private final StatusSignal<AngularVelocity> leaderMotorVelocity = leaderMotor.getVelocity(false);
     private final StatusSignal<Current> leaderMotorTorqueCurrent = leaderMotor.getTorqueCurrent(false);
 
-    /* controls used by the leader motors */
-    public final VelocityVoltage leaderMotorSetpointRequest = new VelocityVoltage(0);
+    /* controls used by the motors*/
+    public final VelocityVoltage leaderMotorVelocityVoltage = new VelocityVoltage(0);
     private final CoastOut coastRequest = new CoastOut();
 
-    /* simulation */
+    /* simulation (unimportant) */
     private final DCMotor leaderMotorDCMotors = DCMotor.getKrakenX60Foc(1);
     private final LinearSystem<N2, N1, N2> leaderMotorFlywheelSystem = LinearSystemId.createDCMotorSystem(leaderMotorDCMotors, 0.004, kGearRatio);
     private final DCMotorSim leaderMotorFlywheelSim = new DCMotorSim(leaderMotorFlywheelSystem, leaderMotorDCMotors);
@@ -114,6 +101,7 @@ public class ShooterSubsystem extends SubsystemBase {
         );
 
     public ShooterSubsystem() {
+        // TODO(calvin): Add logging if it fails
         for (int i = 0; i < kNumConfigAttempts; ++i) {
             var status = leaderMotor.getConfigurator().apply(leaderMotorConfigs);
             if (status.isOK()) break;
@@ -150,7 +138,7 @@ public class ShooterSubsystem extends SubsystemBase {
      */
     public Trigger getTriggerWhenNearTargetVelocity(AngularVelocity threshold) {
         return new Trigger(() -> {
-            return leaderMotorVelocity.isNear(RotationsPerSecond.of(leaderMotorSetpointRequest.Velocity), threshold);
+            return leaderMotorVelocity.isNear(RotationsPerSecond.of(leaderMotorVelocityVoltage.Velocity), threshold);
         });
     }
 
@@ -175,7 +163,9 @@ public class ShooterSubsystem extends SubsystemBase {
             leaderMotorTorqueCurrent
         );
 
-        leaderMotorFlywheelMech2d.setLength(
+        leaderMotorFlywheelMech2d.setLength( // sim stuff
+            // TODO(august): Move 100 to a constant and explain what it is
+            
             leaderMotorVelocity.getValueAsDouble() / 100.0
         );
     }

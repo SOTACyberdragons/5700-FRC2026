@@ -126,7 +126,7 @@ public class RobotContainer {
 
         NamedCommands.registerCommand("Intake", 
             new IntakeCMD(m_intakeSubsystem)
-            .alongWith(new ShootCommand(m_shooterSubsystem, ShooterSetpoint.Feed))
+            .alongWith(new HopperRunCommand(m_hopperSubsystem))
         );
 
         NamedCommands.registerCommand("Outtake", 
