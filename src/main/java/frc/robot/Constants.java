@@ -12,6 +12,7 @@ import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
 import edu.wpi.first.wpilibj.util.Color;
+import frc.robot.generated.TunerConstants;
 
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide
@@ -57,6 +58,7 @@ public final class Constants {
 
 	public static class DrivetrainConstants {
 		public static final double MAX_ANGULAR_RATE = 0.75; // 3/4 of a rotation per second max angular velocity
+		public static final double MAX_SPEED_MULTIPLIER = 1;
 		public static final int SKEW_RATE_LIMITER_Y = 3;
 		public static final int SKEW_RATE_LIMITER_X = 3;
 		public static final int SKEW_RATE_LIMITER_ROTATION = 4;
@@ -134,6 +136,8 @@ public final class Constants {
 		public static final double LEADER_MOTOR_CONFIG_KS = 0;
 		public static final double LEADER_MOTOR_CONFIG_KV = 0.12;
 		public static final double LEADER_MOTOR_CONFIG_KA = 0;
+
+		public static final double KICK_PERCENT = 30;
 	}
 
 	public static class LEDConstants {

@@ -58,7 +58,7 @@ import frc.robot.vision.PhotonVisionSystem;
 public class RobotContainer {
 
     /* Drive variables */
-    private double MaxSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts desired top speed
+    private double MaxSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond) * Constants.DrivetrainConstants.MAX_SPEED_MULTIPLIER; // kSpeedAt12Volts desired top speed
     private double MaxAngularRate = RotationsPerSecond.of(Constants.DrivetrainConstants.MAX_ANGULAR_RATE).in(RadiansPerSecond);
 
 	// limits the change in the drivetrain; makes sure that we don't make any sharp turns. remove if not a concern
@@ -203,8 +203,8 @@ public class RobotContainer {
                     SmartDashboard.putBoolean("Vision Activated", true);
                     /* Use the hub target to determine where to aim TODO: maybe point the wheels so that they are perpendicular to the hub? Do this only if we go with a non-variable shooter*/
                     return targetHub.withTargetDirection(vision.getHeadingToHubFieldRelative())
-                        .withVelocityX(-joystick.getLeftY() * MaxSpeed) // Drive forward with negative Y (forward)
-                        .withVelocityY(-joystick.getLeftX() * MaxSpeed); // Drive left with negative X (left)
+                        .withVelocityX(joystick.getLeftY() * MaxSpeed) // Drive forward with negative Y (forward)
+                        .withVelocityY(joystick.getLeftX() * MaxSpeed); // Drive2``````` left with negative X (left)
                 }
             }
         ));
@@ -226,17 +226,36 @@ public class RobotContainer {
         Depending on the game, this may or may not be useful.
         */
 
-        joystick.pov(270).whileTrue(drivetrain.applyRequest(() ->
+        joystick.pov(0).whileTrue(drivetrain.applyRequest(() ->
+            robotCentricDrive.withVelocityX(Constants.DrivetrainConstants.ROBOT_CENTRIC_DRIVE_SPEED).withVelocityY(0))
+        );
+
+        joystick.pov(45).whileTrue(drivetrain.applyRequest(() ->
+            robotCentricDrive.withVelocityX(Constants.DrivetrainConstants.ROBOT_CENTRIC_DRIVE_SPEED).withVelocityY(-Constants.DrivetrainConstants.ROBOT_CENTRIC_DRIVE_SPEED))
+        );
+
+        joystick.pov(90).whileTrue(drivetrain.applyRequest(() ->
             robotCentricDrive.withVelocityX(0).withVelocityY(-Constants.DrivetrainConstants.ROBOT_CENTRIC_DRIVE_SPEED))
         );
-        joystick.pov(90).whileTrue(drivetrain.applyRequest(() ->
-            robotCentricDrive.withVelocityX(0).withVelocityY(Constants.DrivetrainConstants.ROBOT_CENTRIC_DRIVE_SPEED))
+
+        joystick.pov(135).whileTrue(drivetrain.applyRequest(() ->
+            robotCentricDrive.withVelocityX(-Constants.DrivetrainConstants.ROBOT_CENTRIC_DRIVE_SPEED).withVelocityY(-Constants.DrivetrainConstants.ROBOT_CENTRIC_DRIVE_SPEED))
         );
-        joystick.pov(0).whileTrue(drivetrain.applyRequest(() ->
+
+        joystick.pov(180).whileTrue(drivetrain.applyRequest(() ->
             robotCentricDrive.withVelocityX(-Constants.DrivetrainConstants.ROBOT_CENTRIC_DRIVE_SPEED).withVelocityY(0))
         );
-        joystick.pov(180).whileTrue(drivetrain.applyRequest(() ->
-            robotCentricDrive.withVelocityX(Constants.DrivetrainConstants.ROBOT_CENTRIC_DRIVE_SPEED).withVelocityY(0))
+
+        joystick.pov(225).whileTrue(drivetrain.applyRequest(() ->
+            robotCentricDrive.withVelocityX(-Constants.DrivetrainConstants.ROBOT_CENTRIC_DRIVE_SPEED).withVelocityY(Constants.DrivetrainConstants.ROBOT_CENTRIC_DRIVE_SPEED))
+        );
+
+        joystick.pov(270).whileTrue(drivetrain.applyRequest(() ->
+            robotCentricDrive.withVelocityX(0).withVelocityY(Constants.DrivetrainConstants.ROBOT_CENTRIC_DRIVE_SPEED))
+        );
+
+        joystick.pov(315).whileTrue(drivetrain.applyRequest(() ->
+            robotCentricDrive.withVelocityX(Constants.DrivetrainConstants.ROBOT_CENTRIC_DRIVE_SPEED).withVelocityY(Constants.DrivetrainConstants.ROBOT_CENTRIC_DRIVE_SPEED))
         );
 
 		// reset the field centric position in case the robot becomes misaligned
