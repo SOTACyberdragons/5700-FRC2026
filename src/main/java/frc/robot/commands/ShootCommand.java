@@ -4,12 +4,9 @@
 
 package frc.robot.commands;
 
-import static edu.wpi.first.units.Units.RotationsPerSecond;
-
 import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.signals.MotorAlignmentValue;
 
-import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.wpilibj2.command.Command;
 
 import frc.robot.Constants;
@@ -23,15 +20,15 @@ public class ShootCommand extends Command {
 	private boolean isKilled = false;
 
 	public enum ShooterSetpoint {
-        Outtake(RotationsPerSecond.of(Constants.ShooterConstants.OUTTAKE_RPM)),
-        Near(RotationsPerSecond.of(Constants.ShooterConstants.SHOOT_NEAR_RPM)),
-        Far(RotationsPerSecond.of(Constants.ShooterConstants.SHOOT_FAR_RPM));
+        Outtake(Constants.ShooterConstants.OUTTAKE_PERCENT),
+        Near(Constants.ShooterConstants.SNOOT_NEAR_PERCENT),
+        Far(Constants.ShooterConstants.SHOOT_FAR_PERCENT);
 
         /** The velocity target of the setpoint. */
-        public final AngularVelocity leaderMotorTarget;
+        public final double leaderMotorTargetPercentOutput;
 
-        private ShooterSetpoint(AngularVelocity leaderMotorTarget) {
-            this.leaderMotorTarget = leaderMotorTarget;
+        private ShooterSetpoint(double leaderMotorTargetPercentOutput) {
+            this.leaderMotorTargetPercentOutput = leaderMotorTargetPercentOutput;
         }
     }
 
@@ -51,9 +48,9 @@ public class ShootCommand extends Command {
 	@Override
 	public void execute() {
 		// set the velocity of the velocityvoltage object to the setpoint of the command
-		m_shooterSubsystem.leaderMotorVelocityVoltage.withVelocity(shooterSetpoint.leaderMotorTarget);
+		m_shooterSubsystem.leaderMotorPercentOutput.Output = shooterSetpoint.leaderMotorTargetPercentOutput;
 		// control the motor with the velocityvoltage
-        m_shooterSubsystem.leaderMotor.setControl(m_shooterSubsystem.leaderMotorVelocityVoltage);
+        m_shooterSubsystem.leaderMotor.setControl(m_shooterSubsystem.leaderMotorPercentOutput);
 		// set the follower motor to follow the leader motor
 		m_shooterSubsystem.followerMotor.setControl(new Follower(Constants.IDs.SHOOTER_LEADER_MOTOR_ID, MotorAlignmentValue.Opposed));
 	}

@@ -11,6 +11,7 @@ import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.MotorOutputConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.CoastOut;
+import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
@@ -57,6 +58,8 @@ public class ShooterSubsystem extends SubsystemBase {
 
     /* controls used by the motors*/
     public final VelocityVoltage leaderMotorVelocityVoltage = new VelocityVoltage(0);
+    public final DutyCycleOut leaderMotorPercentOutput = new DutyCycleOut(0);
+
     public final VelocityVoltage kickerMotorVelocityVoltage = new VelocityVoltage(0);
     private final CoastOut coastRequest = new CoastOut();
 

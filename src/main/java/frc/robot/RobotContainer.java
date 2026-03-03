@@ -118,13 +118,13 @@ public class RobotContainer {
             new ShootNearCMD()
             .alongWith(Commands.waitUntil(isFlywheelReadyToShoot))
             .andThen(
-                new HopperCMD(m_hopperSubsystem)
+                new HopperCMD()
             )
         );
         NamedCommands.registerCommand("Shoot Far",
-            new ShootFarCMD()
+            new ShootFarCMD(m_shooterSubsystem)
             .alongWith(Commands.waitUntil(isFlywheelReadyToShoot))
-            .andThen(new HopperCMD(m_hopperSubsystem))
+            .andThen(new HopperCMD())
         );
 
         NamedCommands.registerCommand("Coast All", 
@@ -133,11 +133,11 @@ public class RobotContainer {
         );
 
         NamedCommands.registerCommand("Flywheel Sleep Mode", 
-            new ShooterSleepCMD()
+            new ShooterSleepCMD(m_shooterSubsystem)
         );
 
         NamedCommands.registerCommand("Intake Sleep Mode", 
-            new IntakeSleepCMD()
+            new IntakeSleepCMD(m_intakeSubsystem)
         );
 
         NamedCommands.registerCommand("Hopper Sleep Mode", 

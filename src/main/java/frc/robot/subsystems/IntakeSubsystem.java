@@ -9,6 +9,7 @@ import static edu.wpi.first.units.Units.*;
 import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.controls.CoastOut;
+import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 
@@ -26,6 +27,7 @@ public class IntakeSubsystem extends SubsystemBase {
 
 	/* controls used by the leader motors */
 	public final VelocityVoltage intakVelocityVoltage = new VelocityVoltage(0);
+    public final DutyCycleOut intakePercentOutput = new DutyCycleOut(0);
 	private final CoastOut coastRequest = new CoastOut();
 
 	public TalonFX intakeMotor = new TalonFX(Constants.IDs.INTAKE_MOTOR_ID, kCANBus);
@@ -35,14 +37,13 @@ public class IntakeSubsystem extends SubsystemBase {
 
     // setpoints for intake and intake pivot
     public enum IntakeSetpoint {
-        Intake(RotationsPerSecond.of(Constants.IntakeConstants.INTAKE_RPM)),
-        Outtake(RotationsPerSecond.of(Constants.IntakeConstants.OUTTAKE_RPM)),
-        FeedToShoot(RotationsPerSecond.of(Constants.IntakeConstants.FEED_TO_SHOOT_RPM));
+        Intake(Constants.IntakeConstants.INTAKE_PERCENT),
+        Outtake(Constants.IntakeConstants.OUTTAKE_PERCENT);
         /** The velocity target of the setpoint. */
-        public final AngularVelocity intakeVelocityTarget;
+        public final double intakePercentOutputTarget;
 
-        private IntakeSetpoint(AngularVelocity velocityTarget) {
-            this.intakeVelocityTarget = velocityTarget;
+        private IntakeSetpoint(double percentTarget) {
+            this.intakePercentOutputTarget = percentTarget;
         }
     }
 

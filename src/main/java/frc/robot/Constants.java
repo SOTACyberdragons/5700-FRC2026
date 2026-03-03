@@ -112,6 +112,10 @@ public final class Constants {
 		public static final double INTAKE_RPM = 80;
 		public static final double OUTTAKE_RPM = -70;
 		public static final double FEED_TO_SHOOT_RPM = 90; // -90
+
+		public static final double INTAKE_PERCENT = 45;
+		public static final double OUTTAKE_PERCENT = -55;
+		public static final double SLEEP_PERCENT = 10;
 	}
 
 	public static class HopperConstants {
@@ -126,6 +130,13 @@ public final class Constants {
 		public static final double OUTTAKE_RPM = -80;
 		public static final double SHOOT_NEAR_RPM = 70;
 		public static final double SHOOT_FAR_RPM = 80;
+
+		public static final double FEED_PERCENT = 40;
+		public static final double KICKER_PERCENT = 50;
+		public static final double OUTTAKE_PERCENT = 35;
+		public static final double SHOOT_FAR_PERCENT = 60;
+		public static final double SNOOT_NEAR_PERCENT = 50;
+		public static final double SLEEP_PERCENT = 15;
 
 		public static final double LEADER_MOTOR_CONFIG_KP = 0.8;
 		public static final double LEADER_MOTOR_CONFIG_KI = 0;

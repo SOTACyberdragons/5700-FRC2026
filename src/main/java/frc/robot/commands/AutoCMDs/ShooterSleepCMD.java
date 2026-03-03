@@ -5,12 +5,22 @@
 package frc.robot.commands.AutoCMDs;
 
 import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.Constants;
+import frc.robot.subsystems.ShooterSubsystem;
 
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
 public class ShooterSleepCMD extends Command {
-  /** Creates a new ShooterSleepCMD. */
-  public ShooterSleepCMD() {
+  private final ShooterSubsystem m_shooterSubsystem;
+
+  boolean isKilled = false;
+
+
+  /** Creates a new IntakeSleepCMD. */
+  public ShooterSleepCMD(ShooterSubsystem shooterSubsystem) {
     // Use addRequirements() here to declare subsystem dependencies.
+    m_shooterSubsystem = shooterSubsystem;
+
+    addRequirements(shooterSubsystem);
   }
 
   // Called when the command is initially scheduled.
@@ -19,7 +29,10 @@ public class ShooterSleepCMD extends Command {
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
-  public void execute() {}
+  public void execute() {
+		m_shooterSubsystem.leaderMotorPercentOutput.Output = Constants.ShooterConstants.SLEEP_PERCENT;
+		m_shooterSubsystem.leaderMotor.setControl(m_shooterSubsystem.leaderMotorPercentOutput);
+  }
 
   // Called once the command ends or is interrupted.
   @Override
