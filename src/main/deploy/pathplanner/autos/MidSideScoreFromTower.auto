@@ -31,13 +31,13 @@
         {
           "type": "named",
           "data": {
-            "name": "Stop Shooting"
+            "name": "Coast All"
           }
         }
       ]
     }
   },
   "resetOdom": true,
-  "folder": "Mid",
+  "folder": "Mid Starting",
   "choreoAuto": false
 }

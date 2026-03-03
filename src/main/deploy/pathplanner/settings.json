@@ -9,7 +9,10 @@
     "Right Starting"
   ],
   "autoFolders": [
-    "Mid"
+    "Left Starting",
+    "Mid Starting",
+    "MidStartingButMakeOneForAllSidesToo",
+    "Right Starting"
   ],
   "defaultMaxVel": 3.0,
   "defaultMaxAccel": 3.0,

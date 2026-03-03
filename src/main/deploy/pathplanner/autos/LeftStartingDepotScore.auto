@@ -7,13 +7,19 @@
         {
           "type": "path",
           "data": {
-            "pathName": "MidMoveToTowerSide"
+            "pathName": "LeftSideMoveToDepot"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "MoveThroughDepot"
           }
         },
         {
           "type": "named",
           "data": {
-            "name": "Shoot Far"
+            "name": "Target Hub"
           }
         },
         {
@@ -31,13 +37,13 @@
         {
           "type": "named",
           "data": {
-            "name": "Coast All"
+            "name": null
           }
         }
       ]
     }
   },
   "resetOdom": true,
-  "folder": "Mid Starting",
+  "folder": "Left Starting",
   "choreoAuto": false
 }

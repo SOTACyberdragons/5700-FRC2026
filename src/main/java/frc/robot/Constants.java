@@ -46,13 +46,11 @@ public final class Constants {
 		// intake
 		public static final int INTAKE_MOTOR_ID = 0;
 
-		public static final int INTAKE_PIVOT_MOTOR_ID = 0;
-		public static final int INTAKE_TOP_INDEX_ID = 0;
-
 		public static final int HOPPER_MOTOR_ID = 0;
+
 		public static final int SHOOTER_LEADER_MOTOR_ID = 0;
 		public static final int SHOOTER_FOLLOWER_MOTOR_ID = 0;
-		public static final int CLIMBER_MOTOR_ID = 0;
+		public static final int SHOOTER_KICKER_MOTOR_ID = 0;
 	}
 
 	public static class DrivetrainConstants {
@@ -124,6 +122,7 @@ public final class Constants {
 		public static final double SPINUP_THRESHOLD = 3.0;
 
 		public static final double FEED_RPM = 80;
+		public static final double KICKER_RPM = 60;
 		public static final double OUTTAKE_RPM = -80;
 		public static final double SHOOT_NEAR_RPM = 70;
 		public static final double SHOOT_FAR_RPM = 80;
@@ -134,6 +133,7 @@ public final class Constants {
 		public static final double LEADER_MOTOR_CONFIG_KS = 0;
 		public static final double LEADER_MOTOR_CONFIG_KV = 0.12;
 		public static final double LEADER_MOTOR_CONFIG_KA = 0;
+
 	}
 
 	public static class LEDConstants {

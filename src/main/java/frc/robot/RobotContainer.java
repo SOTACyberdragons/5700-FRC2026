@@ -33,8 +33,16 @@ import frc.robot.commands.HopperRunCommand;
 import frc.robot.commands.OuttakeCommand;
 import frc.robot.commands.IntakeToggleCommand;
 import frc.robot.commands.ShootCommand;
+import frc.robot.commands.AutoCMDs.HopperCMD;
+import frc.robot.commands.AutoCMDs.HopperSleepCMD;
 import frc.robot.commands.AutoCMDs.IntakeCMD;
 import frc.robot.commands.AutoCMDs.OuttakeCMD;
+import frc.robot.commands.AutoCMDs.ShootFarCMD;
+import frc.robot.commands.AutoCMDs.ShootNearCMD;
+import frc.robot.commands.AutoCMDs.ShooterSleepCMD;
+import frc.robot.commands.AutoCMDs.IntakeSleepCMD;
+
+
 import frc.robot.commands.ShootCommand.ShooterSetpoint;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
@@ -98,7 +106,7 @@ public class RobotContainer {
     private final CommandXboxController joystick = new CommandXboxController(OperatorConstants.k_DRIVER_CONTROLLER_PORT);
 
     private final AngularVelocity SpinUpThreshold = RotationsPerSecond.of(ShooterConstants.SPINUP_THRESHOLD); // Tune to increase accuracy while not sacrificing throughput
-    private final Trigger isFlywheelReadyToShoot = m_shooterSubsystem.getTriggerWhenNearTargetVelocity(SpinUpThreshold).or(joystick.x());
+    public final Trigger isFlywheelReadyToShoot = m_shooterSubsystem.getTriggerWhenNearTargetVelocity(SpinUpThreshold).or(joystick.x());
 
     /**
      * The container for the robot. Contains subsystems, OI devices, and commands.
@@ -107,22 +115,36 @@ public class RobotContainer {
         // register all autoCMDs here
         /* Shoot commands need a bit of time to spool up the flywheel before feeding with the intake */
         NamedCommands.registerCommand("Shoot Near", 
-            new ShootCommand(m_shooterSubsystem, ShooterSetpoint.Near)
+            new ShootNearCMD()
             .alongWith(Commands.waitUntil(isFlywheelReadyToShoot))
             .andThen(
-                new HopperRunCommand(m_hopperSubsystem)
+                new HopperCMD(m_hopperSubsystem)
             )
         );
         NamedCommands.registerCommand("Shoot Far",
-            new ShootCommand(m_shooterSubsystem, ShooterSetpoint.Far)
+            new ShootFarCMD()
             .alongWith(Commands.waitUntil(isFlywheelReadyToShoot))
-            .andThen(new HopperRunCommand(m_hopperSubsystem))
+            .andThen(new HopperCMD(m_hopperSubsystem))
         );
 
         NamedCommands.registerCommand("Coast All", 
             m_intakeSubsystem.coastIntake()
             .alongWith(m_shooterSubsystem.coastFlywheel())
         );
+
+        NamedCommands.registerCommand("Flywheel Sleep Mode", 
+            new ShooterSleepCMD()
+        );
+
+        NamedCommands.registerCommand("Intake Sleep Mode", 
+            new IntakeSleepCMD()
+        );
+
+        NamedCommands.registerCommand("Hopper Sleep Mode", 
+            new HopperSleepCMD()
+        );
+
+        // TODO: instead of coasting, just move at small voltage
 
         NamedCommands.registerCommand("Intake", 
             new IntakeCMD(m_intakeSubsystem)
