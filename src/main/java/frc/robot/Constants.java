@@ -134,11 +134,11 @@ public final class Constants {
 		public static final double SHOOT_FAR_RPM = 80;
 
 		public static final double FEED_PERCENT = 40;
-		public static final double KICKER_PERCENT = 50;
-		public static final double OUTTAKE_PERCENT = 35;
-		public static final double SHOOT_FAR_PERCENT = 60;
-		public static final double SNOOT_NEAR_PERCENT = 50;
-		public static final double SLEEP_PERCENT = 15;
+		public static final double KICKER_PERCENT = 0.6;
+		public static final double OUTTAKE_PERCENT = 0.5;
+		public static final double SHOOT_FAR_PERCENT = 0.8;
+		public static final double SNOOT_NEAR_PERCENT = 0.7;
+		public static final double SLEEP_PERCENT = 0.15;
 
 		public static final double LEADER_MOTOR_CONFIG_KP = 0.8;
 		public static final double LEADER_MOTOR_CONFIG_KI = 0;
@@ -147,7 +147,6 @@ public final class Constants {
 		public static final double LEADER_MOTOR_CONFIG_KV = 0.12;
 		public static final double LEADER_MOTOR_CONFIG_KA = 0;
 
-		public static final double KICK_PERCENT = 30;
 
 	public static class LEDConstants {
 		public static final int PWM_PORT = 1;

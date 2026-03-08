@@ -55,10 +55,10 @@ public class ShootCommand extends Command {
         // m_shooterSubsystem.leaderMotor.setControl(m_shooterSubsystem.leaderMotorPercentOutput);
 		// // set the follower motor to follow the leader motor
 		// m_shooterSubsystem.followerMotor.setControl(new Follower(Constants.IDs.SHOOTER_LEADER_MOTOR_ID, MotorAlignmentValue.Opposed));
-		m_shooterSubsystem.kickerMotorPercentOutput.withOutput(0.6);
+		m_shooterSubsystem.kickerMotorPercentOutput.withOutput(Constants.ShooterConstants.KICKER_PERCENT);
 		m_shooterSubsystem.kickerMotor.setControl(m_shooterSubsystem.kickerMotorPercentOutput);
 		
-		m_shooterSubsystem.leaderMotorPercentOutput.withOutput(0.6);
+		m_shooterSubsystem.leaderMotorPercentOutput.withOutput(shooterSetpoint.leaderMotorTargetPercentOutput);
 		m_shooterSubsystem.leaderMotor.setControl(m_shooterSubsystem.leaderMotorPercentOutput);
 	}
 
