@@ -6,7 +6,7 @@ import edu.wpi.first.wpilibj2.command.Command;
  * Example autonomous command that does nothing.
  * This is a template for creating new commands.
  */
-public class ShooterCMD extends Command {
+public class ShootNearCMD extends Command {
     
     /**
      * Creates a new ExampleCMD
@@ -14,7 +14,7 @@ public class ShooterCMD extends Command {
 
     private boolean killed = false;
 
-    public ShooterCMD() {
+    public ShootNearCMD() {
         // Add subsystem requirements here if needed
         // addRequirements(subsystem);
     }

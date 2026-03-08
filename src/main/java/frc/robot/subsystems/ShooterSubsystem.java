@@ -46,13 +46,21 @@ public class ShooterSubsystem extends SubsystemBase {
     private final CANBus kCANBus = new CANBus("*");
     public final TalonFX leaderMotor = new TalonFX(Constants.IDs.SHOOTER_LEADER_MOTOR_ID, kCANBus);
     public final TalonFX followerMotor = new TalonFX(Constants.IDs.SHOOTER_FOLLOWER_MOTOR_ID, kCANBus);
+    public final TalonFX kickerMotor = new TalonFX(Constants.IDs.SHOOTER_KICKER_MOTOR_ID, kCANBus);
+    // TODO: add kicker motor
 
     /* device status signals */
-    private final StatusSignal<AngularVelocity> leaderMotorVelocity = leaderMotor.getVelocity(false);
-    private final StatusSignal<Current> leaderMotorTorqueCurrent = leaderMotor.getTorqueCurrent(false);
+    private final StatusSignal<AngularVelocity> leaderMotorVelocitySignal = leaderMotor.getVelocity(false);
+    private final StatusSignal<Current> leaderMotorTorqueCurrentSignal = leaderMotor.getTorqueCurrent(false);
+
+    private final StatusSignal<AngularVelocity> kickerMotorVelocitySignal = kickerMotor.getVelocity(false);
+    private final StatusSignal<Current> kickerMotorTorqueCurrentSignal = kickerMotor.getTorqueCurrent(false);
 
     /* controls used by the motors*/
     public final VelocityVoltage leaderMotorVelocityVoltage = new VelocityVoltage(0);
+    public final DutyCycleOut leaderMotorPercentOutput = new DutyCycleOut(0);
+
+    public final VelocityVoltage kickerMotorVelocityVoltage = new VelocityVoltage(0);
     private final CoastOut coastRequest = new CoastOut();
     public final DutyCycleOut leaderMotorDutyCycleOut = new DutyCycleOut(0);
 
@@ -120,27 +128,37 @@ public class ShooterSubsystem extends SubsystemBase {
         }
     }
 
-    /**
-     * @return The leaderMotorVelocity of the flywheel
-     */
-    public AngularVelocity getleaderMotorVelocity() {
-        return leaderMotorVelocity.getValue();
+    
+    public AngularVelocity getLeaderMotorVelocitySignal() {
+        return leaderMotorVelocitySignal.getValue();
     }
 
-    /**
-     * @return The leaderMotorTorqueCurrent of the flywheel
-     */
-    public Current getleaderMotorTorqueCurrent() {
-        return leaderMotorTorqueCurrent.getValue();
+    public AngularVelocity getKickerMotorVelocitySignal() {
+        return kickerMotorVelocitySignal.getValue();
+    }
+
+    public Current getKickerMotorTorqueCurrentSignal() {
+        return kickerMotorTorqueCurrentSignal.getValue();
+    }
+
+    public Current getLeaderMotorTorqueCurrentSignal() {
+        return leaderMotorTorqueCurrentSignal.getValue();
     }
     /**
      * 
      * @param threshold
-     * @return true when leaderMotorVelocity is near the threshold
+     * @return true when leaderMotorVelocity is near the threshold AND kicker is also near the threshold
      */
     public Trigger getTriggerWhenNearTargetVelocity(AngularVelocity threshold) {
         return new Trigger(() -> {
-            return leaderMotorVelocity.isNear(RotationsPerSecond.of(leaderMotorVelocityVoltage.Velocity), threshold);
+            boolean leader = leaderMotorVelocitySignal.isNear(
+                RotationsPerSecond.of(leaderMotorVelocityVoltage.Velocity), threshold
+            );
+            boolean kicker = kickerMotorVelocitySignal.isNear(
+                RotationsPerSecond.of(kickerMotorVelocityVoltage.Velocity), threshold
+            );
+
+            return leader && kicker;
         });
     }
 
@@ -154,6 +172,7 @@ public class ShooterSubsystem extends SubsystemBase {
     public Command coastFlywheel() {
         return runOnce(() -> {
             leaderMotor.setControl(coastRequest);
+            kickerMotor.setControl(coastRequest);
         });
     }
 
@@ -161,14 +180,14 @@ public class ShooterSubsystem extends SubsystemBase {
     public void periodic() {
         /* refresh all status signals */
         BaseStatusSignal.refreshAll(
-            leaderMotorVelocity,
-            leaderMotorTorqueCurrent
+            leaderMotorVelocitySignal,
+            leaderMotorTorqueCurrentSignal
         );
 
         leaderMotorFlywheelMech2d.setLength( // sim stuff
             // TODO(august): Move 100 to a constant and explain what it is
             
-            leaderMotorVelocity.getValueAsDouble() / 100.0
+            leaderMotorVelocitySignal.getValueAsDouble() / 100.0
         );
     }
 

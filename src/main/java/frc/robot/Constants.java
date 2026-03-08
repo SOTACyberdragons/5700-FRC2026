@@ -47,13 +47,11 @@ public final class Constants {
 		// intake
 		public static final int INTAKE_MOTOR_ID = 0;
 
-		public static final int INTAKE_PIVOT_MOTOR_ID = 0;
-		public static final int INTAKE_TOP_INDEX_ID = 0;
-
 		public static final int HOPPER_MOTOR_ID = 0;
-		public static final int SHOOTER_LEADER_MOTOR_ID = 0;
+
+		public static final int SHOOTER_LEADER_MOTOR_ID = 14;
 		public static final int SHOOTER_FOLLOWER_MOTOR_ID = 0;
-		public static final int CLIMBER_MOTOR_ID = 0;
+		public static final int SHOOTER_KICKER_MOTOR_ID = 16;
 	}
 
 	public static class DrivetrainConstants {
@@ -116,6 +114,10 @@ public final class Constants {
 		public static final double INTAKE_RPM = 80;
 		public static final double OUTTAKE_RPM = -70;
 		public static final double FEED_TO_SHOOT_RPM = 90; // -90
+
+		public static final double INTAKE_PERCENT = 45;
+		public static final double OUTTAKE_PERCENT = -55;
+		public static final double SLEEP_PERCENT = 10;
 	}
 
 	public static class HopperConstants {
@@ -126,9 +128,17 @@ public final class Constants {
 		public static final double SPINUP_THRESHOLD = 3.0;
 
 		public static final double FEED_RPM = 80;
+		public static final double KICKER_RPM = 60;
 		public static final double OUTTAKE_RPM = -80;
 		public static final double SHOOT_NEAR_RPM = 70;
 		public static final double SHOOT_FAR_RPM = 80;
+
+		public static final double FEED_PERCENT = 40;
+		public static final double KICKER_PERCENT = 50;
+		public static final double OUTTAKE_PERCENT = 35;
+		public static final double SHOOT_FAR_PERCENT = 60;
+		public static final double SNOOT_NEAR_PERCENT = 50;
+		public static final double SLEEP_PERCENT = 15;
 
 		public static final double LEADER_MOTOR_CONFIG_KP = 0.8;
 		public static final double LEADER_MOTOR_CONFIG_KI = 0;
@@ -138,7 +148,6 @@ public final class Constants {
 		public static final double LEADER_MOTOR_CONFIG_KA = 0;
 
 		public static final double KICK_PERCENT = 30;
-	}
 
 	public static class LEDConstants {
 		public static final int PWM_PORT = 1;
@@ -161,4 +170,5 @@ public final class Constants {
 		public static final Color COLOR_PURPLE = new Color(255,0,255);
 		public static final Color COLOR_ORANGE = new Color(255,127,0);
 	}
+}
 }

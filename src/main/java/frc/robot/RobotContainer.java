@@ -33,8 +33,12 @@ import frc.robot.commands.HopperRunCommand;
 import frc.robot.commands.OuttakeCommand;
 import frc.robot.commands.IntakeToggleCommand;
 import frc.robot.commands.ShootCommand;
+import frc.robot.commands.AutoCMDs.HopperCMD;
+import frc.robot.commands.AutoCMDs.HopperSleepCMD;
 import frc.robot.commands.AutoCMDs.IntakeCMD;
 import frc.robot.commands.AutoCMDs.OuttakeCMD;
+
+
 import frc.robot.commands.ShootCommand.ShooterSetpoint;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
@@ -98,7 +102,7 @@ public class RobotContainer {
     private final CommandXboxController joystick = new CommandXboxController(OperatorConstants.k_DRIVER_CONTROLLER_PORT);
 
     private final AngularVelocity SpinUpThreshold = RotationsPerSecond.of(ShooterConstants.SPINUP_THRESHOLD); // Tune to increase accuracy while not sacrificing throughput
-    private final Trigger isFlywheelReadyToShoot = m_shooterSubsystem.getTriggerWhenNearTargetVelocity(SpinUpThreshold).or(joystick.x());
+    public final Trigger isFlywheelReadyToShoot = m_shooterSubsystem.getTriggerWhenNearTargetVelocity(SpinUpThreshold).or(joystick.x());
 
     /**
      * The container for the robot. Contains subsystems, OI devices, and commands.
@@ -106,23 +110,37 @@ public class RobotContainer {
     public RobotContainer() {
         // register all autoCMDs here
         /* Shoot commands need a bit of time to spool up the flywheel before feeding with the intake */
-        NamedCommands.registerCommand("Shoot Near", 
-            new ShootCommand(m_shooterSubsystem, ShooterSetpoint.Near)
-            .alongWith(Commands.waitUntil(isFlywheelReadyToShoot))
-            .andThen(
-                new HopperRunCommand(m_hopperSubsystem)
-            )
-        );
-        NamedCommands.registerCommand("Shoot Far",
-            new ShootCommand(m_shooterSubsystem, ShooterSetpoint.Far)
-            .alongWith(Commands.waitUntil(isFlywheelReadyToShoot))
-            .andThen(new HopperRunCommand(m_hopperSubsystem))
-        );
+        // NamedCommands.registerCommand("Shoot Near", 
+        //     new ShootNearCMD()
+        //     .alongWith(Commands.waitUntil(isFlywheelReadyToShoot))
+        //     .andThen(
+        //         new HopperCMD()
+        //     )
+        // );
+        // NamedCommands.registerCommand("Shoot Far",
+        //     new ShootFarCMD(m_shooterSubsystem)
+        //     .alongWith(Commands.waitUntil(isFlywheelReadyToShoot))
+        //     .andThen(new HopperCMD())
+        // );
 
         NamedCommands.registerCommand("Coast All", 
             m_intakeSubsystem.coastIntake()
             .alongWith(m_shooterSubsystem.coastFlywheel())
         );
+
+        // NamedCommands.registerCommand("Flywheel Sleep Mode", 
+        //     new ShooterSleepCMD(m_shooterSubsystem)
+        // );
+
+        // NamedCommands.registerCommand("Intake Sleep Mode", 
+        //     new IntakeSleepCMD(m_intakeSubsystem)
+        // );
+
+        NamedCommands.registerCommand("Hopper Sleep Mode", 
+            new HopperSleepCMD()
+        );
+
+        // TODO: instead of coasting, just move at small voltage
 
         NamedCommands.registerCommand("Intake", 
             new IntakeCMD(m_intakeSubsystem)
@@ -331,13 +349,14 @@ public class RobotContainer {
     }
 
     public void updateLEDs() { // make sure to consider the priority of these if/else statements when editing this function
-        if (SmartDashboard.getBoolean("Vision Activated", false)) {
-            m_led.setAllBlink(Constants.LEDConstants.COLOR_GREEN, Constants.LEDConstants.BLINK_TIME);
-        } else if (SmartDashboard.getBoolean("Intaking", false)){
-            m_led.setAll(Constants.LEDConstants.COLOR_PURPLE);
-        } else if (SmartDashboard.getBoolean("Shooting", false)){
-            m_led.setAll(Constants.LEDConstants.COLOR_GREEN);
-        }
+        // if (SmartDashboard.getBoolean("Vision Activated", false)) {
+        //     m_led.setAllBlink(Constants.LEDConstants.COLOR_GREEN, Constants.LEDConstants.BLINK_TIME);
+        // } else if (SmartDashboard.getBoolean("Intaking", false)){
+        //     m_led.setAll(Constants.LEDConstants.COLOR_PURPLE);
+        // } else if (SmartDashboard.getBoolean("Shooting", false)){
+        //     m_led.setAll(Constants.LEDConstants.COLOR_GREEN);
+        // }
+        
 
     }
 
