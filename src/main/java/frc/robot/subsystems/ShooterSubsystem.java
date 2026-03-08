@@ -62,7 +62,8 @@ public class ShooterSubsystem extends SubsystemBase {
 
     public final VelocityVoltage kickerMotorVelocityVoltage = new VelocityVoltage(0);
     private final CoastOut coastRequest = new CoastOut();
-    public final DutyCycleOut leaderMotorDutyCycleOut = new DutyCycleOut(0);
+    
+    public final DutyCycleOut kickerMotorPercentOutput = new DutyCycleOut(0);
 
     /* simulation (unimportant) */
     private final DCMotor leaderMotorDCMotors = DCMotor.getKrakenX60Foc(1);

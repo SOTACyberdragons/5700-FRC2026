@@ -95,6 +95,10 @@ public class RobotContainer {
     public final PhotonVisionSystem vision = new PhotonVisionSystem(this::consumePhotonVisionMeasurement, () -> drivetrain.getState().Pose);
     public final LED m_led = new LED();
 
+    public final ShootCommand m_shootNearCommand = new ShootCommand(m_shooterSubsystem, ShooterSetpoint.Near);
+    public final ShootCommand m_shootFarCommand = new ShootCommand(m_shooterSubsystem, ShooterSetpoint.Far);
+    public final ShootCommand m_shootOuttakeCommand = new ShootCommand(m_shooterSubsystem, ShooterSetpoint.Outtake);
+
 
     // path follower
     private final SendableChooser<Command> autoChooser;
@@ -293,7 +297,7 @@ public class RobotContainer {
             // m_intakeSubsystem.setTarget(()->IntakeSetpoint.Outtake) //outtake
             // .alongWith(m_shooterSubsystem.setTarget(()->FlywheelSetpoint.Outtake)) // also outtake shooter
             new OuttakeCommand(m_intakeSubsystem)
-            .alongWith(new ShootCommand(m_shooterSubsystem, ShooterSetpoint.Outtake))
+            .alongWith(m_shootOuttakeCommand)
         );
 
         // Right bumper (hold) -> Shoot(near)
@@ -302,11 +306,13 @@ public class RobotContainer {
             // .alongWith(Commands.waitUntil(isFlywheelReadyToShoot) // wait until ready to shoot
             //     // .andThen(m_intakeSubsystem.setTarget(()->IntakeSetpoint.FeedToShoot))
             // ) // use the intake to push balls into the shooter
-            new ShootCommand(m_shooterSubsystem, ShooterSetpoint.Near)
-            .alongWith(Commands.waitUntil(isFlywheelReadyToShoot))
-            .andThen(new HopperRunCommand(m_hopperSubsystem))
-            .alongWith(Commands.runOnce(() -> SmartDashboard.putBoolean("Shooting:", true)))
+            m_shootNearCommand
+            // .alongWith(Commands.waitUntil(isFlywheelReadyToShoot))
+            // .andThen(new HopperRunCommand(m_hopperSubsystem))
+            .alongWith(Commands.runOnce(() -> SmartDashboard.putBoolean("Shooting", true)))
         );
+
+        joystick.rightBumper().onFalse(Commands.runOnce(()->SmartDashboard.putBoolean("Shooting", false)));
 
         // Right trigger (hold) -> Shoot(far)
         joystick.rightTrigger().whileTrue(
@@ -314,10 +320,14 @@ public class RobotContainer {
             // .alongWith(Commands.waitUntil(isFlywheelReadyToShoot) // wait until ready to shoot
             //     // .andThen(m_intakeSubsystem.setTarget(()->IntakeSetpoint.FeedToShoot))
             // ) // use the intake to push balls into the shooter
-            new ShootCommand(m_shooterSubsystem, ShooterSetpoint.Far)
-            .alongWith(Commands.waitUntil(isFlywheelReadyToShoot))
-            .andThen(new HopperRunCommand(m_hopperSubsystem))
+            m_shootFarCommand
+            // .alongWith(Commands.waitUntil(isFlywheelReadyToShoot))
+            // .andThen(new HopperRunCommand(m_hopperSubsystem))
+            .alongWith(Commands.runOnce(()->SmartDashboard.putBoolean("Shooting", true)))
         );
+
+        joystick.rightTrigger().onFalse(Commands.runOnce(()->SmartDashboard.putBoolean("Shooting", false)));
+
 
         // X (press) -> override isReadyToShoot (see ln 92)
 
