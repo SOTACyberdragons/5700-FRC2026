@@ -25,10 +25,10 @@ public class ShootCommand extends Command {
         Far(Constants.ShooterConstants.SHOOT_FAR_PERCENT);
 
         /** The velocity target of the setpoint. */
-        public final double leaderMotorTargetPercentOutput;
+        public final double percent;
 
-        private ShooterSetpoint(double leaderMotorTargetPercentOutput) {
-            this.leaderMotorTargetPercentOutput = leaderMotorTargetPercentOutput;
+        private ShooterSetpoint(double percent) {
+            this.percent = percent;
         }
     }
 
@@ -58,8 +58,9 @@ public class ShootCommand extends Command {
 		m_shooterSubsystem.kickerMotorPercentOutput.withOutput(Constants.ShooterConstants.KICKER_PERCENT);
 		m_shooterSubsystem.kickerMotor.setControl(m_shooterSubsystem.kickerMotorPercentOutput);
 		
-		m_shooterSubsystem.leaderMotorPercentOutput.withOutput(shooterSetpoint.leaderMotorTargetPercentOutput);
-		m_shooterSubsystem.leaderMotor.setControl(m_shooterSubsystem.leaderMotorPercentOutput);
+		// m_shooterSubsystem.leaderMotorPercentOutput.withOutput(shooterSetpoint.percent);
+		// m_shooterSubsystem.leaderMotor.setControl(m_shooterSubsystem.leaderMotorPercentOutput);
+		m_shooterSubsystem.runShooter(shooterSetpoint.percent);
 	}
 
 	// Called once the command ends or is interrupted.

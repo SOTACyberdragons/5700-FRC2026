@@ -12,9 +12,11 @@ import com.ctre.phoenix6.configs.MotorOutputConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.CoastOut;
 import com.ctre.phoenix6.controls.DutyCycleOut;
+import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
+import com.ctre.phoenix6.signals.MotorAlignmentValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix6.sim.ChassisReference;
 import com.ctre.phoenix6.sim.TalonFXSimState;
@@ -43,7 +45,7 @@ public class ShooterSubsystem extends SubsystemBase {
     private static final double kGearRatio = 1;
 
     /* leader and follower motors */
-    private final CANBus kCANBus = new CANBus("*");
+    private final CANBus kCANBus = new CANBus("rio");
     public final TalonFX leaderMotor = new TalonFX(Constants.IDs.SHOOTER_LEADER_MOTOR_ID, kCANBus);
     public final TalonFX followerMotor = new TalonFX(Constants.IDs.SHOOTER_FOLLOWER_MOTOR_ID, kCANBus);
     public final TalonFX kickerMotor = new TalonFX(Constants.IDs.SHOOTER_KICKER_MOTOR_ID, kCANBus);
@@ -110,6 +112,8 @@ public class ShooterSubsystem extends SubsystemBase {
                 .withKV(Constants.ShooterConstants.LEADER_MOTOR_CONFIG_KV)
                 .withKA(Constants.ShooterConstants.LEADER_MOTOR_CONFIG_KA)
         );
+
+        
 
     public ShooterSubsystem() {
         // TODO(calvin): Add logging if it fails
@@ -223,5 +227,15 @@ public class ShooterSubsystem extends SubsystemBase {
             );
         });
         simNotifier.startPeriodic(kSimLoopPeriod);
+    }
+
+    public void runShooter(double percent) {
+        kickerMotorPercentOutput.withOutput(Constants.ShooterConstants.KICKER_PERCENT);
+        kickerMotor.setControl(kickerMotorPercentOutput);
+        
+        leaderMotorPercentOutput.withOutput(percent);
+        leaderMotor.setControl(leaderMotorPercentOutput);
+
+        followerMotor.setControl(new Follower(Constants.IDs.SHOOTER_LEADER_MOTOR_ID, MotorAlignmentValue.Opposed));
     }
 }
