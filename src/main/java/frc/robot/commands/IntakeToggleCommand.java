@@ -14,7 +14,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 public class IntakeToggleCommand extends Command {
 	private final IntakeSubsystem m_intakeSubsystem;
 
-	private static boolean intakeIntaking = false;
+	private boolean intakeIntaking;
 
 	private boolean isKilled = false;
 
@@ -25,8 +25,9 @@ public class IntakeToggleCommand extends Command {
 	 * 
 	 * @param setpoint The setpoint to go to. Should be of type IntakeSetpoint
 	 */
-	public IntakeToggleCommand(IntakeSubsystem intakeSubsystem) {
+	public IntakeToggleCommand(IntakeSubsystem intakeSubsystem, boolean intakeIntaking) {
 		m_intakeSubsystem = intakeSubsystem;
+		this.intakeIntaking = intakeIntaking;
 
 
 		addRequirements(intakeSubsystem);
@@ -42,10 +43,10 @@ public class IntakeToggleCommand extends Command {
 	public void execute() {
 		if (intakeIntaking){ // if the intake was intaking, turn it off
 			m_intakeSubsystem.coastIntake();
-			intakeIntaking = false;
+			this.intakeIntaking = false;
 		} else { // otherwise, turn it on to the setpoint
-			m_intakeSubsystem.intakVelocityVoltage.withVelocity(Constants.IntakeConstants.INTAKE_RPM);
-			m_intakeSubsystem.intakeMotor.setControl(m_intakeSubsystem.intakVelocityVoltage);
+			m_intakeSubsystem.intakePercentOutput.withOutput(Constants.IntakeConstants.INTAKE_PERCENT);
+			m_intakeSubsystem.intakeMotor.setControl(m_intakeSubsystem.intakePercentOutput);
 		}
 	}
 
@@ -53,7 +54,7 @@ public class IntakeToggleCommand extends Command {
 	@Override
 	public void end(boolean interrupted) {
 		// when the command is finished (the driver stops pressing the button) set intakeIntaking to true if we were intaking
-		intakeIntaking = true;
+		this.intakeIntaking = true;
 	}
 
 	// Returns true when the command should end.

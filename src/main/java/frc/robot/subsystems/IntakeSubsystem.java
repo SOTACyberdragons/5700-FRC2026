@@ -23,7 +23,7 @@ import frc.robot.Constants;
 public class IntakeSubsystem extends SubsystemBase {
 
 
-	private final CANBus kCANBus = new CANBus("*");
+	private final CANBus kCANBus = new CANBus("rio"); //* */
 
 	/* controls used by the leader motors */
 	public final VelocityVoltage intakVelocityVoltage = new VelocityVoltage(0);

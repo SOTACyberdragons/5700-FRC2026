@@ -45,12 +45,12 @@ public final class Constants {
 
 	public static class IDs {
 		// intake
-		public static final int INTAKE_MOTOR_ID = 0;
+		public static final int INTAKE_MOTOR_ID = 19;
 
 		public static final int HOPPER_MOTOR_ID = 0;
 
 		public static final int SHOOTER_LEADER_MOTOR_ID = 14;
-		public static final int SHOOTER_FOLLOWER_MOTOR_ID = 0;
+		public static final int SHOOTER_FOLLOWER_MOTOR_ID = 17;
 		public static final int SHOOTER_KICKER_MOTOR_ID = 16;
 	}
 
@@ -115,8 +115,8 @@ public final class Constants {
 		public static final double OUTTAKE_RPM = -70;
 		public static final double FEED_TO_SHOOT_RPM = 90; // -90
 
-		public static final double INTAKE_PERCENT = 45;
-		public static final double OUTTAKE_PERCENT = -55;
+		public static final double INTAKE_PERCENT = -0.35;
+		public static final double OUTTAKE_PERCENT = 0.5;
 		public static final double SLEEP_PERCENT = 10;
 	}
 
@@ -128,10 +128,10 @@ public final class Constants {
 		public static final double SPINUP_THRESHOLD = 3.0;
 
 		public static final double FEED_RPM = 80;
-		public static final double KICKER_RPM = 60;
+		public static final double KICKER_RPM = 100;
 		public static final double OUTTAKE_RPM = -80;
 		public static final double SHOOT_NEAR_RPM = 70;
-		public static final double SHOOT_FAR_RPM = 80;
+		public static final double SHOOT_FAR_RPM = 100;
 
 		public static final double FEED_PERCENT = 40;
 		public static final double KICKER_PERCENT = 0.6;

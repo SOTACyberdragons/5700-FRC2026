@@ -30,6 +30,7 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.Constants.ShooterConstants;
 import frc.robot.commands.HopperRunCommand;
+import frc.robot.commands.IntakeCommand;
 import frc.robot.commands.OuttakeCommand;
 import frc.robot.commands.IntakeToggleCommand;
 import frc.robot.commands.ShootCommand;
@@ -64,6 +65,7 @@ public class RobotContainer {
     /* Drive variables */
     private double MaxSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond) * Constants.DrivetrainConstants.MAX_SPEED_MULTIPLIER; // kSpeedAt12Volts desired top speed
     private double MaxAngularRate = RotationsPerSecond.of(Constants.DrivetrainConstants.MAX_ANGULAR_RATE).in(RadiansPerSecond);
+    private boolean intakeIntaking = false;
 
 	// limits the change in the drivetrain; makes sure that we don't make any sharp turns. remove if not a concern
     private final SlewRateLimiter xLimiter = new SlewRateLimiter(Constants.DrivetrainConstants.SKEW_RATE_LIMITER_Y); 
@@ -282,14 +284,22 @@ public class RobotContainer {
         /////// Shooting and intaking
 
         // Left Bumper (toggle) -> Intake
-        joystick.leftBumper().onTrue(
+        joystick.leftTrigger().whileTrue(
             // m_intakeSubsystem.setTarget(()->IntakeSetpoint.Intake) // intake
             // .alongWith(m_shooterSubsystem.setTarget(()->FlywheelSetpoint.Intake)) // this is feeding into the shooter?
-            new IntakeToggleCommand(m_intakeSubsystem)
+            new IntakeCommand(m_intakeSubsystem)
+            .alongWith(Commands.runOnce(()->SmartDashboard.putBoolean("Intaking", true)))
+
         );
+        joystick.leftTrigger().onFalse(
+            Commands.runOnce(()->m_intakeSubsystem.coastIntake())
+            .alongWith(new OuttakeCommand(m_intakeSubsystem))
+            .alongWith(Commands.runOnce(()->SmartDashboard.putBoolean("Intaking", false)))
+            );
+
         
         // Left Trigger (hold) -> Outtake all
-        joystick.leftTrigger().whileTrue(
+        joystick.leftBumper().whileTrue(
             // m_intakeSubsystem.setTarget(()->IntakeSetpoint.Outtake) //outtake
             // .alongWith(m_shooterSubsystem.setTarget(()->FlywheelSetpoint.Outtake)) // also outtake shooter
             new OuttakeCommand(m_intakeSubsystem)
