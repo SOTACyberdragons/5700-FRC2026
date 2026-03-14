@@ -127,17 +127,11 @@ public final class Constants {
 	public static class ShooterConstants {
 		public static final double SPINUP_THRESHOLD = 3.0;
 
-		public static final double FEED_RPM = 80;
-		public static final double KICKER_RPM = 100;
-		public static final double OUTTAKE_RPM = -80;
-		public static final double SHOOT_NEAR_RPM = 75;
-		public static final double SHOOT_FAR_RPM = 100;
-
 		public static final double FEED_PERCENT = 40;
 		public static final double KICKER_PERCENT = 0.6;
 		public static final double OUTTAKE_PERCENT = 0.5;
-		public static final double SHOOT_FAR_PERCENT = 0.8;
-		public static final double SNOOT_NEAR_PERCENT = 0.7;
+		public static final double SHOOT_FAR_PERCENT = 1.0;
+		public static final double SNOOT_NEAR_PERCENT = 0.8;
 		public static final double SLEEP_PERCENT = 0.15;
 
 		public static final double LEADER_MOTOR_CONFIG_KP = 0.8;

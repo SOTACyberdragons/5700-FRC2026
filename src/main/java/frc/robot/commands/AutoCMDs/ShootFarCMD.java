@@ -41,10 +41,10 @@ public class ShootFarCMD extends Command {
     @Override
     public void execute() {
         // Add execution code here
-        m_shooterSubsystem.leaderMotorVelocityVoltage.withVelocity(Constants.ShooterConstants.SHOOT_FAR_RPM);
+        m_shooterSubsystem.leaderMotorPercentOutput.withOutput(Constants.ShooterConstants.SHOOT_FAR_PERCENT);
 		m_shooterSubsystem.leaderMotor.setControl(m_shooterSubsystem.leaderMotorVelocityVoltage);
         m_shooterSubsystem.followerMotor.setControl(new Follower(Constants.IDs.SHOOTER_LEADER_MOTOR_ID, MotorAlignmentValue.Opposed));
-        m_shooterSubsystem.kickerMotorVelocityVoltage.withVelocity(Constants.ShooterConstants.KICKER_RPM);
+        m_shooterSubsystem.kickerMotorPercentOutput.withOutput(Constants.ShooterConstants.KICKER_PERCENT);
         Commands.waitUntil(m_shooterSubsystem.getTriggerWhenNearTargetVelocity(RotationsPerSecond.of(Constants.ShooterConstants.SPINUP_THRESHOLD)));
         m_shooterSubsystem.kickerMotor.setControl(m_shooterSubsystem.kickerMotorVelocityVoltage);
         

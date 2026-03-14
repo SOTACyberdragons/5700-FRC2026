@@ -32,9 +32,6 @@ public class IntakeSubsystem extends SubsystemBase {
 
 	public TalonFX intakeMotor = new TalonFX(Constants.IDs.INTAKE_MOTOR_ID, kCANBus);
 
-    public double intakeAngle = 0;
-
-
     // setpoints for intake and intake pivot
     public enum IntakeSetpoint {
         Intake(Constants.IntakeConstants.INTAKE_PERCENT),

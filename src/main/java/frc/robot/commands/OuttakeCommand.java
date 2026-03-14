@@ -37,8 +37,8 @@ public class OuttakeCommand extends Command {
 	// Called every time the scheduler runs while the command is scheduled.
 	@Override
 	public void execute() {
-		m_intakeSubsystem.intakVelocityVoltage.withVelocity(Constants.IntakeConstants.OUTTAKE_RPM);
-		m_intakeSubsystem.intakeMotor.setControl(m_intakeSubsystem.intakVelocityVoltage);
+		m_intakeSubsystem.intakePercentOutput.withOutput(Constants.IntakeConstants.OUTTAKE_PERCENT);
+		m_intakeSubsystem.intakeMotor.setControl(m_intakeSubsystem.intakePercentOutput);
 
 	}
 
