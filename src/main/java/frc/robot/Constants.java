@@ -130,7 +130,7 @@ public final class Constants {
 		public static final double FEED_RPM = 80;
 		public static final double KICKER_RPM = 100;
 		public static final double OUTTAKE_RPM = -80;
-		public static final double SHOOT_NEAR_RPM = 70;
+		public static final double SHOOT_NEAR_RPM = 75;
 		public static final double SHOOT_FAR_RPM = 100;
 
 		public static final double FEED_PERCENT = 40;
