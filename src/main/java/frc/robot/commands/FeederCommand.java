@@ -14,30 +14,16 @@ import frc.robot.Constants;
 import frc.robot.subsystems.ShooterSubsystem;
 
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
-public class ShootCommand extends Command {
+public class FeederCommand extends Command {
 	private ShooterSubsystem m_shooterSubsystem;
-	private final ShooterSetpoint shooterSetpoint;
+	private double feederDelay;
 
 
 	private boolean isKilled = false;
 
-	public enum ShooterSetpoint {
-        Outtake(Constants.ShooterConstants.OUTTAKE_PERCENT),
-        Near(Constants.ShooterConstants.SNOOT_NEAR_PERCENT),
-        Far(Constants.ShooterConstants.SHOOT_FAR_PERCENT);
-
-        /** The velocity target of the setpoint. */
-        public final double percent;
-
-        private ShooterSetpoint(double percent) {
-            this.percent = percent;
-        }
-    }
-
 	/** Creates a new ShootCommand. */
-	public ShootCommand(ShooterSubsystem shooter, ShooterSetpoint setpoint) {
+	public FeederCommand(ShooterSubsystem shooter) {
 		m_shooterSubsystem = shooter;
-		shooterSetpoint = setpoint;
 		addRequirements(m_shooterSubsystem);
 
 	}
@@ -45,6 +31,7 @@ public class ShootCommand extends Command {
 	// Called when the command is initially scheduled.
 	@Override
 	public void initialize() {
+		feederDelay = Timer.getFPGATimestamp()+1;
 	}
 
 	// Called every time the scheduler runs while the command is scheduled.
@@ -63,7 +50,9 @@ public class ShootCommand extends Command {
 		
 		// m_shooterSubsystem.leaderMotorPercentOutput.withOutput(shooterSetpoint.percent);
 		// m_shooterSubsystem.leaderMotor.setControl(m_shooterSubsystem.leaderMotorPercentOutput);
-			m_shooterSubsystem.runShooter(shooterSetpoint.percent);
+		if(Timer.getFPGATimestamp()>feederDelay){
+			m_shooterSubsystem.runFeeder();
+		}
 		
 	}
 

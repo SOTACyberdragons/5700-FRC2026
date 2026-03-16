@@ -29,8 +29,10 @@ import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.Constants.ShooterConstants;
-import frc.robot.commands.HopperRunCommand;
+import frc.robot.commands.FeederCommand;
+//import frc.robot.commands.HopperRunCommand;
 import frc.robot.commands.IntakeCommand;
+import frc.robot.commands.IntakeDefaultCommand;
 import frc.robot.commands.OuttakeCommand;
 import frc.robot.commands.IntakeToggleCommand;
 import frc.robot.commands.ShootCommand;
@@ -43,7 +45,7 @@ import frc.robot.commands.AutoCMDs.OuttakeCMD;
 import frc.robot.commands.ShootCommand.ShooterSetpoint;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
-import frc.robot.subsystems.HopperSubsystem;
+// import frc.robot.subsystems.HopperSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.LED;
 import frc.robot.subsystems.ShooterSubsystem;
@@ -93,7 +95,7 @@ public class RobotContainer {
     public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
     public final IntakeSubsystem m_intakeSubsystem = new IntakeSubsystem();
     public final ShooterSubsystem m_shooterSubsystem = new ShooterSubsystem();
-    public final HopperSubsystem m_hopperSubsystem = new HopperSubsystem();
+    // public final HopperSubsystem m_hopperSubsystem = new HopperSubsystem();
     public final PhotonVisionSystem vision = new PhotonVisionSystem(this::consumePhotonVisionMeasurement, () -> drivetrain.getState().Pose);
     public final LED m_led = new LED();
 
@@ -103,8 +105,7 @@ public class RobotContainer {
 
     private final CommandXboxController joystick = new CommandXboxController(OperatorConstants.k_DRIVER_CONTROLLER_PORT);
 
-    private final AngularVelocity SpinUpThreshold = RotationsPerSecond.of(ShooterConstants.SPINUP_THRESHOLD); // Tune to increase accuracy while not sacrificing throughput
-    public final Trigger isFlywheelReadyToShoot = m_shooterSubsystem.getTriggerWhenNearTargetVelocity(SpinUpThreshold).or(joystick.x());
+    // public final Trigger isFlywheelReadyToShoot = m_shooterSubsystem.getTriggerWhenNearTargetVelocity(SpinUpThreshold).or(joystick.x());
 
     /**
      * The container for the robot. Contains subsystems, OI devices, and commands.
@@ -146,7 +147,7 @@ public class RobotContainer {
 
         NamedCommands.registerCommand("Intake", 
             new IntakeCMD(m_intakeSubsystem)
-            .alongWith(new HopperRunCommand(m_hopperSubsystem))
+            // .alongWith(new HopperRunCommand(m_hopperSubsystem))
         );
 
         NamedCommands.registerCommand("Outtake", 
@@ -205,6 +206,10 @@ public class RobotContainer {
         RobotModeTriggers.disabled().whileTrue(
             drivetrain.applyRequest(() -> idle).ignoringDisable(true)
         );
+
+        
+
+        m_intakeSubsystem.setDefaultCommand(new IntakeDefaultCommand(m_intakeSubsystem));
         
         ///// Alternate driving
         /* Y (hold) -> Vision-constricted driving */
@@ -231,11 +236,17 @@ public class RobotContainer {
         // reset "vision activated" boolean on the smartdashboard when we stop driving with vision
         joystick.y().onFalse(Commands.runOnce(() -> SmartDashboard.putBoolean("Vision Activated", false)));
 
+        joystick.a().whileTrue(
+            drivetrain.applyRequest(() -> brake)
+            .alongWith(Commands.runOnce(()->SmartDashboard.putBoolean("Braking", true)))
+            );
+
+        joystick.a().onFalse(Commands.runOnce(()->SmartDashboard.putBoolean("Braking", false)));
         /* TODO: would be really cool to add a button for going over the bump. it would be a hold that 
             * gets the current rotation,
             * finds which of the 4 directions it is closest to (forward, back, left, right),
             * turns the robot 45deg from that rotation.
-            * and then limits the sped to the exact amount we need to go over the bump
+            * and then limits the speed to the exact amount we need to go over the bump
 
         I would suggest using B for this
         */ 
@@ -283,7 +294,7 @@ public class RobotContainer {
 
         /////// Shooting and intaking
 
-        // Left Bumper (toggle) -> Intake
+        // Left Trigger (toggle) -> Intake
         joystick.leftTrigger().whileTrue(
             // m_intakeSubsystem.setTarget(()->IntakeSetpoint.Intake) // intake
             // .alongWith(m_shooterSubsystem.setTarget(()->FlywheelSetpoint.Intake)) // this is feeding into the shooter?
@@ -291,20 +302,17 @@ public class RobotContainer {
             .alongWith(Commands.runOnce(()->SmartDashboard.putBoolean("Intaking", true)))
 
         );
-        joystick.leftTrigger().onFalse(
-            Commands.runOnce(()->m_intakeSubsystem.coastIntake())
-            .alongWith(new OuttakeCommand(m_intakeSubsystem))
-            .alongWith(Commands.runOnce(()->SmartDashboard.putBoolean("Intaking", false)))
-            );
 
         
-        // Left Trigger (hold) -> Outtake all
+        // Left Bumper (hold) -> Outtake all
         joystick.leftBumper().whileTrue(
             // m_intakeSubsystem.setTarget(()->IntakeSetpoint.Outtake) //outtake
             // .alongWith(m_shooterSubsystem.setTarget(()->FlywheelSetpoint.Outtake)) // also outtake shooter
             new OuttakeCommand(m_intakeSubsystem)
-            .alongWith(new ShootCommand(m_shooterSubsystem, ShooterSetpoint.Outtake))
+            .alongWith(Commands.runOnce(()->SmartDashboard.putBoolean("Outtaking", true)))
         );
+        joystick.leftBumper().onFalse(Commands.runOnce(()->SmartDashboard.putBoolean("Outtaking", false)));
+        
 
         // Right bumper (hold) -> Shoot(near)
         joystick.rightBumper().whileTrue(
@@ -312,7 +320,9 @@ public class RobotContainer {
             // .alongWith(Commands.waitUntil(isFlywheelReadyToShoot) // wait until ready to shoot
             //     // .andThen(m_intakeSubsystem.setTarget(()->IntakeSetpoint.FeedToShoot))
             // ) // use the intake to push balls into the shooter
+            
             new ShootCommand(m_shooterSubsystem, ShooterSetpoint.Near)
+            ///.alongWith(new FeederCommand(m_shooterSubsystem))
             // .alongWith(Commands.waitUntil(isFlywheelReadyToShoot))
             // .andThen(new HopperRunCommand(m_hopperSubsystem))
             .alongWith(Commands.runOnce(() -> SmartDashboard.putBoolean("Shooting", true)))
@@ -327,6 +337,7 @@ public class RobotContainer {
             //     // .andThen(m_intakeSubsystem.setTarget(()->IntakeSetpoint.FeedToShoot))
             // ) // use the intake to push balls into the shooter
             new ShootCommand(m_shooterSubsystem, ShooterSetpoint.Far)
+           // .alongWith(new FeederCommand(m_shooterSubsystem))
             // .alongWith(Commands.waitUntil(isFlywheelReadyToShoot))
             // .andThen(new HopperRunCommand(m_hopperSubsystem))
             .alongWith(Commands.runOnce(()->SmartDashboard.putBoolean("Shooting", true)))
@@ -338,9 +349,9 @@ public class RobotContainer {
         // X (press) -> override isReadyToShoot (see ln 92)
 
         // A (hold) -> Run hopper (useful for agitation)
-        joystick.a().whileTrue(
-            new HopperRunCommand(m_hopperSubsystem)
-        );
+        // joystick.a().whileTrue(
+        //     new HopperRunCommand(m_hopperSubsystem)
+        // );
 
     }
 

@@ -125,7 +125,7 @@ public final class Constants {
 	}
 
 	public static class ShooterConstants {
-		public static final double SPINUP_THRESHOLD = 3.0;
+		public static final double FEEDER_DELAY = 1.0;
 
 		public static final double FEED_PERCENT = 40;
 		public static final double KICKER_PERCENT = 0.6;

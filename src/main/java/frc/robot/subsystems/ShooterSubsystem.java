@@ -29,6 +29,7 @@ import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.units.measure.*;
 import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.RobotController;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 import edu.wpi.first.wpilibj.smartdashboard.Mechanism2d;
 import edu.wpi.first.wpilibj.smartdashboard.MechanismLigament2d;
@@ -49,6 +50,8 @@ public class ShooterSubsystem extends SubsystemBase {
     public final TalonFX leaderMotor = new TalonFX(Constants.IDs.SHOOTER_LEADER_MOTOR_ID, kCANBus);
     public final TalonFX followerMotor = new TalonFX(Constants.IDs.SHOOTER_FOLLOWER_MOTOR_ID, kCANBus);
     public final TalonFX kickerMotor = new TalonFX(Constants.IDs.SHOOTER_KICKER_MOTOR_ID, kCANBus);
+    private double feederDelay;
+
     // TODO: add kicker motor
 
     /* device status signals */
@@ -230,6 +233,7 @@ public class ShooterSubsystem extends SubsystemBase {
     }
 
     public void runShooter(double percent) {
+
         kickerMotorPercentOutput.withOutput(Constants.ShooterConstants.KICKER_PERCENT);
         kickerMotor.setControl(kickerMotorPercentOutput);
         
@@ -237,5 +241,10 @@ public class ShooterSubsystem extends SubsystemBase {
         leaderMotor.setControl(leaderMotorPercentOutput);
 
         followerMotor.setControl(new Follower(Constants.IDs.SHOOTER_LEADER_MOTOR_ID, MotorAlignmentValue.Opposed));
+    }
+
+    public void runFeeder(){
+        kickerMotorPercentOutput.withOutput(Constants.ShooterConstants.KICKER_PERCENT);
+        kickerMotor.setControl(kickerMotorPercentOutput); 
     }
 }
