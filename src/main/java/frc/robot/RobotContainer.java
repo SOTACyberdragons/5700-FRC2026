@@ -100,6 +100,9 @@ public class RobotContainer {
     public final LED m_led = new LED();
 
 
+    
+
+
     // path follower
     private final SendableChooser<Command> autoChooser;
 
@@ -162,6 +165,14 @@ public class RobotContainer {
         // auto stuff
         autoChooser = AutoBuilder.buildAutoChooser("Tests");
         SmartDashboard.putData("Auto Mode", autoChooser);
+
+        // initialize booleans
+        SmartDashboard.putBoolean("Intaking", false);
+        SmartDashboard.putBoolean("Outtaking", false);
+        SmartDashboard.putBoolean("Shooting", false);
+        SmartDashboard.putBoolean("Braking", false);
+
+
 
         // Configure the trigger bindings
         configureBindings();

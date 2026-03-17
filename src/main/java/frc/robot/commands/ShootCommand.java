@@ -63,7 +63,7 @@ public class ShootCommand extends Command {
 		
 		// m_shooterSubsystem.leaderMotorPercentOutput.withOutput(shooterSetpoint.percent);
 		// m_shooterSubsystem.leaderMotor.setControl(m_shooterSubsystem.leaderMotorPercentOutput);
-			m_shooterSubsystem.runShooter(shooterSetpoint.percent);
+		m_shooterSubsystem.runShooter(shooterSetpoint.percent);
 		
 	}
 
