@@ -45,7 +45,7 @@ import frc.robot.commands.AutoCMDs.OuttakeCMD;
 import frc.robot.commands.ShootCommand.ShooterSetpoint;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
-// import frc.robot.subsystems.HopperSubsystem;
+import frc.robot.subsystems.HopperSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.LED;
 import frc.robot.subsystems.ShooterSubsystem;
@@ -95,7 +95,7 @@ public class RobotContainer {
     public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
     public final IntakeSubsystem m_intakeSubsystem = new IntakeSubsystem();
     public final ShooterSubsystem m_shooterSubsystem = new ShooterSubsystem();
-    // public final HopperSubsystem m_hopperSubsystem = new HopperSubsystem();
+    public final HopperSubsystem m_hopperSubsystem = new HopperSubsystem();
     public final PhotonVisionSystem vision = new PhotonVisionSystem(this::consumePhotonVisionMeasurement, () -> drivetrain.getState().Pose);
     public final LED m_led = new LED();
 
@@ -327,15 +327,9 @@ public class RobotContainer {
 
         // Right bumper (hold) -> Shoot(near)
         joystick.rightBumper().whileTrue(
-            // m_shooterSubsystem.setTarget(()->FlywheelSetpoint.Near) // First spin up the flywheel
-            // .alongWith(Commands.waitUntil(isFlywheelReadyToShoot) // wait until ready to shoot
-            //     // .andThen(m_intakeSubsystem.setTarget(()->IntakeSetpoint.FeedToShoot))
-            // ) // use the intake to push balls into the shooter
             
             new ShootCommand(m_shooterSubsystem, ShooterSetpoint.Near)
-            ///.alongWith(new FeederCommand(m_shooterSubsystem))
-            // .alongWith(Commands.waitUntil(isFlywheelReadyToShoot))
-            // .andThen(new HopperRunCommand(m_hopperSubsystem))
+            .alongWith(new FeederCommand(m_hopperSubsystem))
             .alongWith(Commands.runOnce(() -> SmartDashboard.putBoolean("Shooting", true)))
         );
 

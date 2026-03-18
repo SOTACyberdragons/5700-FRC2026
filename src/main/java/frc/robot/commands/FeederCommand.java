@@ -11,20 +11,21 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.Constants;
+import frc.robot.subsystems.HopperSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
 
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
 public class FeederCommand extends Command {
-	private ShooterSubsystem m_shooterSubsystem;
+	private HopperSubsystem m_hopperSubsystem;
 	private double feederDelay;
 
 
 	private boolean isKilled = false;
 
 	/** Creates a new ShootCommand. */
-	public FeederCommand(ShooterSubsystem shooter) {
-		m_shooterSubsystem = shooter;
-		addRequirements(m_shooterSubsystem);
+	public FeederCommand(HopperSubsystem hopper) {
+		m_hopperSubsystem = hopper;
+		addRequirements(m_hopperSubsystem);
 
 	}
 
@@ -51,7 +52,7 @@ public class FeederCommand extends Command {
 		// m_shooterSubsystem.leaderMotorPercentOutput.withOutput(shooterSetpoint.percent);
 		// m_shooterSubsystem.leaderMotor.setControl(m_shooterSubsystem.leaderMotorPercentOutput);
 		if(Timer.getFPGATimestamp()>feederDelay){
-			m_shooterSubsystem.runFeeder();
+			m_hopperSubsystem.runFeeder();
 		}
 		
 	}

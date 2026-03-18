@@ -49,7 +49,7 @@ public class ShooterSubsystem extends SubsystemBase {
     private final CANBus kCANBus = new CANBus("rio");
     public final TalonFX leaderMotor = new TalonFX(Constants.IDs.SHOOTER_LEADER_MOTOR_ID, kCANBus);
     public final TalonFX followerMotor = new TalonFX(Constants.IDs.SHOOTER_FOLLOWER_MOTOR_ID, kCANBus);
-    public final TalonFX kickerMotor = new TalonFX(Constants.IDs.SHOOTER_KICKER_MOTOR_ID, kCANBus);
+    
     private double feederDelay;
 
     // TODO: add kicker motor
@@ -58,17 +58,14 @@ public class ShooterSubsystem extends SubsystemBase {
     private final StatusSignal<AngularVelocity> leaderMotorVelocitySignal = leaderMotor.getVelocity(false);
     private final StatusSignal<Current> leaderMotorTorqueCurrentSignal = leaderMotor.getTorqueCurrent(false);
 
-    private final StatusSignal<AngularVelocity> kickerMotorVelocitySignal = kickerMotor.getVelocity(false);
-    private final StatusSignal<Current> kickerMotorTorqueCurrentSignal = kickerMotor.getTorqueCurrent(false);
-
+    
     /* controls used by the motors*/
     public final VelocityVoltage leaderMotorVelocityVoltage = new VelocityVoltage(0);
     public final DutyCycleOut leaderMotorPercentOutput = new DutyCycleOut(0);
 
-    public final VelocityVoltage kickerMotorVelocityVoltage = new VelocityVoltage(0);
+   
     private final CoastOut coastRequest = new CoastOut();
     
-    public final DutyCycleOut kickerMotorPercentOutput = new DutyCycleOut(0);
 
     /* simulation (unimportant) */
     private final DCMotor leaderMotorDCMotors = DCMotor.getKrakenX60Foc(1);
@@ -141,13 +138,7 @@ public class ShooterSubsystem extends SubsystemBase {
         return leaderMotorVelocitySignal.getValue();
     }
 
-    public AngularVelocity getKickerMotorVelocitySignal() {
-        return kickerMotorVelocitySignal.getValue();
-    }
-
-    public Current getKickerMotorTorqueCurrentSignal() {
-        return kickerMotorTorqueCurrentSignal.getValue();
-    }
+    
 
     public Current getLeaderMotorTorqueCurrentSignal() {
         return leaderMotorTorqueCurrentSignal.getValue();
@@ -162,11 +153,7 @@ public class ShooterSubsystem extends SubsystemBase {
             boolean leader = leaderMotorVelocitySignal.isNear(
                 RotationsPerSecond.of(leaderMotorVelocityVoltage.Velocity), threshold
             );
-            boolean kicker = kickerMotorVelocitySignal.isNear(
-                RotationsPerSecond.of(kickerMotorVelocityVoltage.Velocity), threshold
-            );
-
-            return leader && kicker;
+            return leader;
         });
     }
 
@@ -180,7 +167,6 @@ public class ShooterSubsystem extends SubsystemBase {
     public Command coastFlywheel() {
         return runOnce(() -> {
             leaderMotor.setControl(coastRequest);
-            kickerMotor.setControl(coastRequest);
         });
     }
 
@@ -233,9 +219,6 @@ public class ShooterSubsystem extends SubsystemBase {
     }
 
     public void runShooter(double percent) {
-
-        kickerMotorPercentOutput.withOutput(Constants.ShooterConstants.KICKER_PERCENT);
-        kickerMotor.setControl(kickerMotorPercentOutput);
         
         leaderMotorPercentOutput.withOutput(percent);
         leaderMotor.setControl(leaderMotorPercentOutput);
@@ -243,8 +226,5 @@ public class ShooterSubsystem extends SubsystemBase {
         followerMotor.setControl(new Follower(Constants.IDs.SHOOTER_LEADER_MOTOR_ID, MotorAlignmentValue.Opposed));
     }
 
-    public void runFeeder(){
-        kickerMotorPercentOutput.withOutput(Constants.ShooterConstants.KICKER_PERCENT);
-        kickerMotor.setControl(kickerMotorPercentOutput); 
-    }
+   
 }

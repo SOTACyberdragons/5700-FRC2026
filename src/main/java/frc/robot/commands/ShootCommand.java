@@ -50,19 +50,6 @@ public class ShootCommand extends Command {
 	// Called every time the scheduler runs while the command is scheduled.
 	@Override
 	public void execute() {
-		// m_shooterSubsystem.kickerMotorPercentOutput.Output = Constants.ShooterConstants.KICK_PERCENT;
-		// Commands.waitSeconds(0.5);
-		// // set the velocity of the velocityvoltage object to the setpoint of the command
-		// m_shooterSubsystem.leaderMotorPercentOutput.Output = 60;
-		// // control the motor with the velocityvoltage
-        // m_shooterSubsystem.leaderMotor.setControl(m_shooterSubsystem.leaderMotorPercentOutput);
-		// // set the follower motor to follow the leader motor
-		// m_shooterSubsystem.followerMotor.setControl(new Follower(Constants.IDs.SHOOTER_LEADER_MOTOR_ID, MotorAlignmentValue.Opposed));
-		// m_shooterSubsystem.kickerMotorPercentOutput.withOutput(Constants.ShooterConstants.KICKER_PERCENT);
-		// m_shooterSubsystem.kickerMotor.setControl(m_shooterSubsystem.kickerMotorPercentOutput);
-		
-		// m_shooterSubsystem.leaderMotorPercentOutput.withOutput(shooterSetpoint.percent);
-		// m_shooterSubsystem.leaderMotor.setControl(m_shooterSubsystem.leaderMotorPercentOutput);
 		m_shooterSubsystem.runShooter(shooterSetpoint.percent);
 		
 	}

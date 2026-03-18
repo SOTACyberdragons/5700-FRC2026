@@ -29,11 +29,7 @@ public class ShootTriggerCommand extends Command {
 	// Called every time the scheduler runs while the command is scheduled.
 	@Override
 	public void execute() {
-		m_shooterSubsystem.kickerMotorPercentOutput.withOutput(Constants.ShooterConstants.KICKER_PERCENT);
-		m_shooterSubsystem.kickerMotor.setControl(m_shooterSubsystem.kickerMotorPercentOutput);
-		
-		m_shooterSubsystem.leaderMotorPercentOutput.withOutput(percent);
-		m_shooterSubsystem.leaderMotor.setControl(m_shooterSubsystem.leaderMotorPercentOutput);
+		m_shooterSubsystem.runShooter(percent);
 	}
 
 	// Called once the command ends or is interrupted.
