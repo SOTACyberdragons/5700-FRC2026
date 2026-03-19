@@ -2,27 +2,18 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
-package frc.robot.commands;
+package frc.robot.commands.percent;
 
-import frc.robot.Constants;
 import frc.robot.subsystems.IntakeSubsystem;
-
+import frc.robot.Constants.IntakePercentSetpoint;
 import edu.wpi.first.wpilibj2.command.Command;
 
-/** An example command that uses an example subsystem. */
-public class IntakeCommand extends Command {
+public class IntakePercentCommand extends Command {
 	private final IntakeSubsystem m_intakeSubsystem;
 
 	private boolean isKilled = false;
 
-	/**
-	 * Creates a new ExampleCommand.
-	 *
-	 * @param intakeSubsystem The subsystem used by this command.
-	 * 
-	 * @param setpoint The setpoint to go to. Should be of type IntakeSetpoint
-	 */
-	public IntakeCommand(IntakeSubsystem intakeSubsystem) {
+	public IntakePercentCommand(IntakeSubsystem intakeSubsystem) {
 		m_intakeSubsystem = intakeSubsystem;
 
 		addRequirements(intakeSubsystem);
@@ -36,7 +27,10 @@ public class IntakeCommand extends Command {
 	// Called every time the scheduler runs while the command is scheduled.
 	@Override
 	public void execute() {
-		m_intakeSubsystem.intakePercentOutput.withOutput(Constants.IntakeConstants.INTAKE_PERCENT);
+		// change the controller to the correct value
+		m_intakeSubsystem.intakePercentOutput.withOutput(IntakePercentSetpoint.Intake.percent);
+
+		// run the motor using the controller
 		m_intakeSubsystem.intakeMotor.setControl(m_intakeSubsystem.intakePercentOutput);
 
 	}

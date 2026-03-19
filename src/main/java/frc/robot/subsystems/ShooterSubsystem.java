@@ -218,7 +218,7 @@ public class ShooterSubsystem extends SubsystemBase {
         simNotifier.startPeriodic(kSimLoopPeriod);
     }
 
-    public void runShooter(double percent) {
+    public void runShooterPercent(double percent) {
         
         leaderMotorPercentOutput.withOutput(percent);
         leaderMotor.setControl(leaderMotorPercentOutput);
@@ -226,5 +226,10 @@ public class ShooterSubsystem extends SubsystemBase {
         followerMotor.setControl(new Follower(Constants.IDs.SHOOTER_LEADER_MOTOR_ID, MotorAlignmentValue.Opposed));
     }
 
+    public void runShooterVelocity(double velocity) {
+        leaderMotorVelocityVoltage.withVelocity(velocity);
+        leaderMotor.setControl(leaderMotorVelocityVoltage);
+        followerMotor.setControl(new Follower(Constants.IDs.SHOOTER_LEADER_MOTOR_ID, MotorAlignmentValue.Opposed));
+    }
    
 }

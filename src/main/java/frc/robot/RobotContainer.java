@@ -13,7 +13,6 @@ import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.commands.FollowPathCommand;
 
 import edu.wpi.first.math.filter.SlewRateLimiter;
-import edu.wpi.first.units.measure.AngularVelocity;
 
 import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
@@ -28,21 +27,16 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.OperatorConstants;
-import frc.robot.Constants.ShooterConstants;
-import frc.robot.commands.FeederCommand;
-//import frc.robot.commands.HopperRunCommand;
-import frc.robot.commands.IntakeCommand;
-import frc.robot.commands.IntakeDefaultCommand;
-import frc.robot.commands.OuttakeCommand;
-import frc.robot.commands.IntakeToggleCommand;
-import frc.robot.commands.ShootCommand;
-import frc.robot.commands.AutoCMDs.HopperCMD;
-import frc.robot.commands.AutoCMDs.HopperSleepCMD;
+import frc.robot.commands.percent.FeederPercentCommand;
+import frc.robot.commands.percent.IntakePercentCommand;
+import frc.robot.commands.percent.IntakePercentDefaultCommand;
+import frc.robot.commands.percent.OuttakePercentCommand;
+import frc.robot.commands.percent.ShooterPercentSetpointCommand;
 import frc.robot.commands.AutoCMDs.IntakeCMD;
 import frc.robot.commands.AutoCMDs.OuttakeCMD;
 
 
-import frc.robot.commands.ShootCommand.ShooterSetpoint;
+import frc.robot.Constants.ShooterPercentSetpoint;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.HopperSubsystem;
@@ -67,31 +61,36 @@ public class RobotContainer {
     /* Drive variables */
     private double MaxSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond) * Constants.DrivetrainConstants.MAX_SPEED_MULTIPLIER; // kSpeedAt12Volts desired top speed
     private double MaxAngularRate = RotationsPerSecond.of(Constants.DrivetrainConstants.MAX_ANGULAR_RATE).in(RadiansPerSecond);
-    private boolean intakeIntaking = false;
 
 	// limits the change in the drivetrain; makes sure that we don't make any sharp turns. remove if not a concern
     private final SlewRateLimiter xLimiter = new SlewRateLimiter(Constants.DrivetrainConstants.SKEW_RATE_LIMITER_Y); 
     private final SlewRateLimiter yLimiter = new SlewRateLimiter(Constants.DrivetrainConstants.SKEW_RATE_LIMITER_X); 
     private final SlewRateLimiter rotLimiter = new SlewRateLimiter(Constants.DrivetrainConstants.SKEW_RATE_LIMITER_ROTATION); 
 
+    //// variables for controlling driving of the robot. these are called using various functions such as drivetrain.applyRequest(fieldCentricDrive)
+    // drive based onthe robots rotation and position on the field
     private final SwerveRequest.FieldCentric fieldCentricDrive = new SwerveRequest.FieldCentric()
         .withDeadband(MaxSpeed * 0.05).withRotationalDeadband(MaxAngularRate * 0.05) // Add a 10% deadband
         .withDriveRequestType(DriveRequestType.OpenLoopVoltage); // Use open-loop control for drive motors
     
+    // x-lock control
     private final SwerveRequest.SwerveDriveBrake brake = new SwerveRequest.SwerveDriveBrake();
+    // point at a specific direction
     private final SwerveRequest.PointWheelsAt point = new SwerveRequest.PointWheelsAt();
 
+    // vision-constricted driving
     private final SwerveRequest.FieldCentricFacingAngle targetHub = new SwerveRequest.FieldCentricFacingAngle()
-        .withHeadingPID(10, 0, 0) // TODO: add constants
+        .withHeadingPID(Constants.DrivetrainConstants.K_P_HUB_CENTRIC, Constants.DrivetrainConstants.K_I_HUB_CENTRIC, Constants.DrivetrainConstants.K_D_HUB_CENTRIC)
         .withDriveRequestType(DriveRequestType.OpenLoopVoltage)
         .withForwardPerspective(ForwardPerspectiveValue.OperatorPerspective);
 
+    // robot-centric driving
     private final SwerveRequest.RobotCentric robotCentricDrive = new SwerveRequest.RobotCentric()
         .withDriveRequestType(DriveRequestType.OpenLoopVoltage);
 
     private final Telemetry logger = new Telemetry(MaxSpeed);
 
-    // The robot's subsystems and commands are defined here...
+    // The robot's subsystems are defined here...
     public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
     public final IntakeSubsystem m_intakeSubsystem = new IntakeSubsystem();
     public final ShooterSubsystem m_shooterSubsystem = new ShooterSubsystem();
@@ -106,6 +105,7 @@ public class RobotContainer {
     // path follower
     private final SendableChooser<Command> autoChooser;
 
+    // represents the controller
     private final CommandXboxController joystick = new CommandXboxController(OperatorConstants.k_DRIVER_CONTROLLER_PORT);
 
     // public final Trigger isFlywheelReadyToShoot = m_shooterSubsystem.getTriggerWhenNearTargetVelocity(SpinUpThreshold).or(joystick.x());
@@ -115,47 +115,21 @@ public class RobotContainer {
      */
     public RobotContainer() {
         // register all autoCMDs here
-        /* Shoot commands need a bit of time to spool up the flywheel before feeding with the intake */
-        // NamedCommands.registerCommand("Shoot Near", 
-        //     new ShootNearCMD()
-        //     .alongWith(Commands.waitUntil(isFlywheelReadyToShoot))
-        //     .andThen(
-        //         new HopperCMD()
-        //     )
-        // );
-        // NamedCommands.registerCommand("Shoot Far",
-        //     new ShootFarCMD(m_shooterSubsystem)
-        //     .alongWith(Commands.waitUntil(isFlywheelReadyToShoot))
-        //     .andThen(new HopperCMD())
-        // );
-
         NamedCommands.registerCommand("Coast All", 
             m_intakeSubsystem.coastIntake()
             .alongWith(m_shooterSubsystem.coastFlywheel())
-        );
-
-        // NamedCommands.registerCommand("Flywheel Sleep Mode", 
-        //     new ShooterSleepCMD(m_shooterSubsystem)
-        // );
-
-        // NamedCommands.registerCommand("Intake Sleep Mode", 
-        //     new IntakeSleepCMD(m_intakeSubsystem)
-        // );
-
-        NamedCommands.registerCommand("Hopper Sleep Mode", 
-            new HopperSleepCMD()
         );
 
         // TODO: instead of coasting, just move at small voltage
 
         NamedCommands.registerCommand("Intake", 
             new IntakeCMD(m_intakeSubsystem)
-            // .alongWith(new HopperRunCommand(m_hopperSubsystem))
+            .alongWith(new FeederPercentCommand(m_hopperSubsystem, false))
         );
 
         NamedCommands.registerCommand("Outtake", 
             new OuttakeCMD(m_intakeSubsystem)
-            .alongWith(new ShootCommand(m_shooterSubsystem, ShooterSetpoint.Outtake))
+            .alongWith(new ShooterPercentSetpointCommand(m_shooterSubsystem, ShooterPercentSetpoint.Outtake))
         );
 
         NamedCommands.registerCommand("Target Hub", 
@@ -166,7 +140,7 @@ public class RobotContainer {
         autoChooser = AutoBuilder.buildAutoChooser("Tests");
         SmartDashboard.putData("Auto Mode", autoChooser);
 
-        // initialize booleans
+        // initialize booleans for dashboard
         SmartDashboard.putBoolean("Intaking", false);
         SmartDashboard.putBoolean("Outtaking", false);
         SmartDashboard.putBoolean("Shooting", false);
@@ -220,7 +194,7 @@ public class RobotContainer {
 
         
 
-        m_intakeSubsystem.setDefaultCommand(new IntakeDefaultCommand(m_intakeSubsystem));
+        m_intakeSubsystem.setDefaultCommand(new IntakePercentDefaultCommand(m_intakeSubsystem));
         
         ///// Alternate driving
         /* Y (hold) -> Vision-constricted driving */
@@ -247,20 +221,13 @@ public class RobotContainer {
         // reset "vision activated" boolean on the smartdashboard when we stop driving with vision
         joystick.y().onFalse(Commands.runOnce(() -> SmartDashboard.putBoolean("Vision Activated", false)));
 
+        // x-lock, aka brake
         joystick.a().whileTrue(
             drivetrain.applyRequest(() -> brake)
             .alongWith(Commands.runOnce(()->SmartDashboard.putBoolean("Braking", true)))
             );
 
         joystick.a().onFalse(Commands.runOnce(()->SmartDashboard.putBoolean("Braking", false)));
-        /* TODO: would be really cool to add a button for going over the bump. it would be a hold that 
-            * gets the current rotation,
-            * finds which of the 4 directions it is closest to (forward, back, left, right),
-            * turns the robot 45deg from that rotation.
-            * and then limits the speed to the exact amount we need to go over the bump
-
-        I would suggest using B for this
-        */ 
         
         /*Drive robot centric */
         /* this code outputs a flat amount of movement while driving robot centric, 
@@ -305,31 +272,26 @@ public class RobotContainer {
 
         /////// Shooting and intaking
 
-        // Left Trigger (toggle) -> Intake
+        // Left Trigger (hold) -> Intake
         joystick.leftTrigger().whileTrue(
-            // m_intakeSubsystem.setTarget(()->IntakeSetpoint.Intake) // intake
-            // .alongWith(m_shooterSubsystem.setTarget(()->FlywheelSetpoint.Intake)) // this is feeding into the shooter?
-            new IntakeCommand(m_intakeSubsystem)
+            new IntakePercentCommand(m_intakeSubsystem)
             .alongWith(Commands.runOnce(()->SmartDashboard.putBoolean("Intaking", true)))
-
         );
 
         
-        // Left Bumper (hold) -> Outtake all
+        // Left Bumper (hold) -> Outtake intake
         joystick.leftBumper().whileTrue(
-            // m_intakeSubsystem.setTarget(()->IntakeSetpoint.Outtake) //outtake
-            // .alongWith(m_shooterSubsystem.setTarget(()->FlywheelSetpoint.Outtake)) // also outtake shooter
-            new OuttakeCommand(m_intakeSubsystem)
+            new OuttakePercentCommand(m_intakeSubsystem)
             .alongWith(Commands.runOnce(()->SmartDashboard.putBoolean("Outtaking", true)))
         );
         joystick.leftBumper().onFalse(Commands.runOnce(()->SmartDashboard.putBoolean("Outtaking", false)));
         
-
+        
         // Right bumper (hold) -> Shoot(near)
         joystick.rightBumper().whileTrue(
             
-            new ShootCommand(m_shooterSubsystem, ShooterSetpoint.Near)
-            .alongWith(new FeederCommand(m_hopperSubsystem))
+            new ShooterPercentSetpointCommand(m_shooterSubsystem, ShooterPercentSetpoint.Near)
+            .alongWith(new FeederPercentCommand(m_hopperSubsystem))
             .alongWith(Commands.runOnce(() -> SmartDashboard.putBoolean("Shooting", true)))
         );
 
@@ -337,26 +299,18 @@ public class RobotContainer {
 
         // Right trigger (hold) -> Shoot(far)
         joystick.rightTrigger().whileTrue(
-            // m_shooterSubsystem.setTarget(()->FlywheelSetpoint.Far) // First spin up the flywheel
-            // .alongWith(Commands.waitUntil(isFlywheelReadyToShoot) // wait until ready to shoot
-            //     // .andThen(m_intakeSubsystem.setTarget(()->IntakeSetpoint.FeedToShoot))
-            // ) // use the intake to push balls into the shooter
-            new ShootCommand(m_shooterSubsystem, ShooterSetpoint.Far)
-           // .alongWith(new FeederCommand(m_shooterSubsystem))
-            // .alongWith(Commands.waitUntil(isFlywheelReadyToShoot))
-            // .andThen(new HopperRunCommand(m_hopperSubsystem))
+
+            new ShooterPercentSetpointCommand(m_shooterSubsystem, ShooterPercentSetpoint.Far)
+            .alongWith(new FeederPercentCommand(m_hopperSubsystem))
             .alongWith(Commands.runOnce(()->SmartDashboard.putBoolean("Shooting", true)))
         );
 
         joystick.rightTrigger().onFalse(Commands.runOnce(()->SmartDashboard.putBoolean("Shooting", false)));
 
-
-        // X (press) -> override isReadyToShoot (see ln 92)
-
         // A (hold) -> Run hopper (useful for agitation)
-        // joystick.a().whileTrue(
-        //     new HopperRunCommand(m_hopperSubsystem)
-        // );
+        joystick.x().whileTrue(
+            new FeederPercentCommand(m_hopperSubsystem)
+        );
 
     }
 
@@ -378,18 +332,6 @@ public class RobotContainer {
         public void consumePhotonVisionMeasurement(LoggableRobotPose pose) {
         /* Super simple, should modify to support variable standard deviations */
         drivetrain.addVisionMeasurement(pose.estimatedPose.toPose2d(), pose.timestampSeconds);
-    }
-
-    public void updateLEDs() { // make sure to consider the priority of these if/else statements when editing this function
-        // if (SmartDashboard.getBoolean("Vision Activated", false)) {
-        //     m_led.setAllBlink(Constants.LEDConstants.COLOR_GREEN, Constants.LEDConstants.BLINK_TIME);
-        // } else if (SmartDashboard.getBoolean("Intaking", false)){
-        //     m_led.setAll(Constants.LEDConstants.COLOR_PURPLE);
-        // } else if (SmartDashboard.getBoolean("Shooting", false)){
-        //     m_led.setAll(Constants.LEDConstants.COLOR_GREEN);
-        // }
-        
-
     }
 
     public void periodic() {

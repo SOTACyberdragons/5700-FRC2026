@@ -2,30 +2,21 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
-package frc.robot.commands;
-
-import frc.robot.Constants;
+package frc.robot.commands.percent;
 
 import frc.robot.subsystems.IntakeSubsystem;
-
+import frc.robot.Constants.IntakePercentSetpoint;
 import edu.wpi.first.wpilibj2.command.Command;
 
-/** An example command that uses an example subsystem. */
-public class IntakeToggleCommand extends Command {
+public class IntakePercentToggleCommand extends Command {
 	private final IntakeSubsystem m_intakeSubsystem;
 
 	private boolean intakeIntaking;
 
 	private boolean isKilled = false;
 
-	/**
-	 * Creates a new ExampleCommand.
-	 *
-	 * @param intakeSubsystem The subsystem used by this command.
-	 * 
-	 * @param setpoint The setpoint to go to. Should be of type IntakeSetpoint
-	 */
-	public IntakeToggleCommand(IntakeSubsystem intakeSubsystem, boolean intakeIntaking) {
+
+	public IntakePercentToggleCommand(IntakeSubsystem intakeSubsystem, boolean intakeIntaking) {
 		m_intakeSubsystem = intakeSubsystem;
 		this.intakeIntaking = intakeIntaking;
 
@@ -45,7 +36,9 @@ public class IntakeToggleCommand extends Command {
 			m_intakeSubsystem.coastIntake();
 			this.intakeIntaking = false;
 		} else { // otherwise, turn it on to the setpoint
-			m_intakeSubsystem.intakePercentOutput.withOutput(Constants.IntakeConstants.INTAKE_PERCENT);
+			// set the controller to the correct value
+			m_intakeSubsystem.intakePercentOutput.withOutput(IntakePercentSetpoint.Intake.percent);
+			// control the motor using the controller
 			m_intakeSubsystem.intakeMotor.setControl(m_intakeSubsystem.intakePercentOutput);
 		}
 	}

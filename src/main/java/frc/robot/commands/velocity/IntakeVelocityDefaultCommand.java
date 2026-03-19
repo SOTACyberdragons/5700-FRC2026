@@ -2,28 +2,19 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
-package frc.robot.commands;
+package frc.robot.commands.velocity;
 
-import frc.robot.Constants;
-
+import frc.robot.Constants.IntakeVelocitySetpoint;
 import frc.robot.subsystems.IntakeSubsystem;
-
 import edu.wpi.first.wpilibj2.command.Command;
 
-/** An example command that uses an example subsystem. */
-public class OuttakeCommand extends Command {
+public class IntakeVelocityDefaultCommand extends Command {
 	private final IntakeSubsystem m_intakeSubsystem;
 
 	private boolean isKilled = false;
 
-	/**
-	 * Creates a new ExampleCommand.
-	 *
-	 * @param intakeSubsystem The subsystem used by this command.
-	 * 
-	 * @param setpoint The setpoint to go to. Should be of type IntakeSetpoint
-	 */
-	public OuttakeCommand(IntakeSubsystem intakeSubsystem) {
+
+	public IntakeVelocityDefaultCommand(IntakeSubsystem intakeSubsystem) {
 		m_intakeSubsystem = intakeSubsystem;
 
 		addRequirements(intakeSubsystem);
@@ -37,9 +28,8 @@ public class OuttakeCommand extends Command {
 	// Called every time the scheduler runs while the command is scheduled.
 	@Override
 	public void execute() {
-		m_intakeSubsystem.intakePercentOutput.withOutput(Constants.IntakeConstants.OUTTAKE_PERCENT);
-		m_intakeSubsystem.intakeMotor.setControl(m_intakeSubsystem.intakePercentOutput);
-
+		// set the motor to a basic speed for sleep
+		m_intakeSubsystem.intakeMotor.set(IntakeVelocitySetpoint.Sleep.velocity);
 	}
 
 	// Called once the command ends or is interrupted.

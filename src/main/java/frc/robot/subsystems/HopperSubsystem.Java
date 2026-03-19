@@ -16,7 +16,6 @@ import static edu.wpi.first.units.Units.RotationsPerSecond;
 
 import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.StatusSignal;
-import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.controls.CoastOut;
 import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.controls.VelocityVoltage;
@@ -24,13 +23,20 @@ import com.ctre.phoenix6.controls.VelocityVoltage;
 import frc.robot.Constants;
 
 public class HopperSubsystem extends SubsystemBase {
-    public TalonFX hopperMotor = new TalonFX(Constants.IDs.HOPPER_MOTOR_ID);
+
 	private final CANBus kCANBus = new CANBus("rio");
-	public final TalonFX kickerMotor = new TalonFX(Constants.IDs.SHOOTER_KICKER_MOTOR_ID, kCANBus);
+
+    public final TalonFX hopperMotor = new TalonFX(Constants.IDs.HOPPER_MOTOR_ID, kCANBus);
+    public final TalonFX kickerMotor = new TalonFX(Constants.IDs.SHOOTER_KICKER_MOTOR_ID, kCANBus);
+
+    private final CoastOut coastRequest = new CoastOut();
+
     public DutyCycleOut hopperPercentOutput = new DutyCycleOut(0);
-	private final CoastOut coastRequest = new CoastOut();
+    public VelocityVoltage hopperVelocityVoltage = new VelocityVoltage(0);
+
 	public final DutyCycleOut kickerMotorPercentOutput = new DutyCycleOut(0);
 	public final VelocityVoltage kickerMotorVelocityVoltage = new VelocityVoltage(0);
+
 	private final StatusSignal<AngularVelocity> kickerMotorVelocitySignal = kickerMotor.getVelocity(false);
     private final StatusSignal<Current> kickerMotorTorqueCurrentSignal = kickerMotor.getTorqueCurrent(false);
 	
@@ -47,10 +53,6 @@ public class HopperSubsystem extends SubsystemBase {
         });
 	}
 
-	public void runHopper(double percent){
-		kickerMotorPercentOutput.withOutput(Constants.ShooterConstants.KICKER_PERCENT);
-        kickerMotor.setControl(kickerMotorPercentOutput);
-	}
 
 	public AngularVelocity getKickerMotorVelocitySignal() {
         return kickerMotorVelocitySignal.getValue();
@@ -60,12 +62,30 @@ public class HopperSubsystem extends SubsystemBase {
         return kickerMotorTorqueCurrentSignal.getValue();
     }
 
-	public void runFeeder(){
-        kickerMotorPercentOutput.withOutput(Constants.ShooterConstants.KICKER_PERCENT);
+	public void runFeederPercent(){
+        kickerMotorPercentOutput.withOutput(Constants.HopperConstants.KICKER_PERCENT);
         kickerMotor.setControl(kickerMotorPercentOutput); 
 
-		hopperPercentOutput.withOutput(Constants.HopperConstants.FEED_TO_SHOOT_RPM);
+		hopperPercentOutput.withOutput(Constants.HopperConstants.HOPPER_RPM);
         hopperMotor.setControl(hopperPercentOutput);
+    }
+
+    public void runFeederVelocity(){
+        kickerMotorVelocityVoltage.withVelocity(Constants.HopperConstants.KICKER_RPM);
+        kickerMotor.setControl(kickerMotorVelocityVoltage);
+
+        hopperVelocityVoltage.withVelocity(Constants.HopperConstants.HOPPER_RPM);
+        hopperMotor.setControl(hopperVelocityVoltage);
+    }
+
+	public void runFeederPercentWithoutKicker(){
+		hopperPercentOutput.withOutput(Constants.HopperConstants.HOPPER_RPM);
+        hopperMotor.setControl(hopperPercentOutput);
+    }
+
+    public void runFeederVelocityWithoutKicker(){
+        hopperVelocityVoltage.withVelocity(Constants.HopperConstants.HOPPER_RPM);
+        hopperMotor.setControl(hopperVelocityVoltage);
     }
 
 	public Trigger getTriggerWhenNearTargetVelocity(AngularVelocity threshold) {
