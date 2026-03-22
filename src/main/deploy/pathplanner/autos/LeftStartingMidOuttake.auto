@@ -5,15 +5,27 @@
     "data": {
       "commands": [
         {
-          "type": "path",
+          "type": "named",
           "data": {
-            "pathName": "MidTurnToTower"
+            "name": "Shoot Near"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 3.0
           }
         },
         {
           "type": "named",
           "data": {
-            "name": "Target Hub"
+            "name": "Intake"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "LeftCMotion"
           }
         },
         {
@@ -25,19 +37,13 @@
         {
           "type": "wait",
           "data": {
-            "waitTime": 15.0
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "Coast All"
+            "waitTime": 10.0
           }
         }
       ]
     }
   },
   "resetOdom": true,
-  "folder": "Mid Starting",
+  "folder": "Left Starting",
   "choreoAuto": false
 }

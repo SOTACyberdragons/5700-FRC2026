@@ -2,31 +2,35 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
-package frc.robot.commands.percent;
+package frc.robot.commands;
 
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants;
-import frc.robot.subsystems.HopperSubsystem;
+import frc.robot.Constants.FeederPercentSetpoint;
+import frc.robot.subsystems.FeederSubsystem;
 
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
 public class FeederPercentCommand extends Command {
-	private HopperSubsystem m_hopperSubsystem;
+	private FeederSubsystem m_feederSubsystem;
 	private double feederDelay;
 	private boolean runKicker;
+	private FeederPercentSetpoint setpoint;
 
 	private boolean isKilled = false;
 
-	public FeederPercentCommand(HopperSubsystem hopper, boolean runKicker) {
-		m_hopperSubsystem = hopper;
+	public FeederPercentCommand(FeederSubsystem feeder, boolean runKicker, FeederPercentSetpoint setpoint) {
+		m_feederSubsystem = feeder;
 		this.runKicker = runKicker;
-		addRequirements(m_hopperSubsystem);
+		this.setpoint = setpoint;
+		addRequirements(m_feederSubsystem);
 	}
 
-	public FeederPercentCommand(HopperSubsystem hopper) {
-		m_hopperSubsystem = hopper;
+	public FeederPercentCommand(FeederSubsystem feeder, FeederPercentSetpoint setpoint) {
+		m_feederSubsystem = feeder;
 		this.runKicker = true;
-		addRequirements(m_hopperSubsystem);
+		this.setpoint = setpoint;
+		addRequirements(m_feederSubsystem);
 	}
 
 	// Called when the command is initially scheduled.
@@ -43,9 +47,9 @@ public class FeederPercentCommand extends Command {
 		if(Timer.getFPGATimestamp()>feederDelay){
 			// run the kicker only if commanded to
 			if (runKicker){
-				m_hopperSubsystem.runFeederPercent();
+				m_feederSubsystem.runFeederPercent(setpoint.percent);
 			} else {
-				m_hopperSubsystem.runFeederPercentWithoutKicker();
+				m_feederSubsystem.runFeederPercentWithoutKicker(setpoint.percent);
 			}
 		}
 		

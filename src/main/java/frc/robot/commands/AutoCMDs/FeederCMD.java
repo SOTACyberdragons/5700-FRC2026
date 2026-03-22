@@ -6,15 +6,15 @@ import edu.wpi.first.wpilibj2.command.Command;
  * Example autonomous command that does nothing.
  * This is a template for creating new commands.
  */
-public class HopperCMD extends Command {
+public class FeederCMD extends Command {
     
     /**
-     * Creates a new HopperCMD
+     * Creates a new FeederCMD
      */
 
     private boolean killed = false;
 
-    public HopperCMD() {
+    public FeederCMD() {
         // Add subsystem requirements here if needed
         // addRequirements(subsystem);
     }

@@ -26,12 +26,14 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.robot.Constants.FeederPercentSetpoint;
 import frc.robot.Constants.OperatorConstants;
-import frc.robot.commands.percent.FeederPercentCommand;
-import frc.robot.commands.percent.IntakePercentCommand;
-import frc.robot.commands.percent.IntakePercentDefaultCommand;
-import frc.robot.commands.percent.OuttakePercentCommand;
-import frc.robot.commands.percent.ShooterPercentSetpointCommand;
+import frc.robot.commands.FeederPercentCommand;
+import frc.robot.commands.IntakePercentCommand;
+import frc.robot.commands.IntakePercentDefaultCommand;
+import frc.robot.commands.OuttakePercentCommand;
+import frc.robot.commands.ShooterPercentDefaultCommand;
+import frc.robot.commands.ShooterPercentSetpointCommand;
 import frc.robot.commands.AutoCMDs.IntakeCMD;
 import frc.robot.commands.AutoCMDs.OuttakeCMD;
 
@@ -39,7 +41,7 @@ import frc.robot.commands.AutoCMDs.OuttakeCMD;
 import frc.robot.Constants.ShooterPercentSetpoint;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
-import frc.robot.subsystems.HopperSubsystem;
+import frc.robot.subsystems.FeederSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.LED;
 import frc.robot.subsystems.ShooterSubsystem;
@@ -94,7 +96,7 @@ public class RobotContainer {
     public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
     public final IntakeSubsystem m_intakeSubsystem = new IntakeSubsystem();
     public final ShooterSubsystem m_shooterSubsystem = new ShooterSubsystem();
-    public final HopperSubsystem m_hopperSubsystem = new HopperSubsystem();
+    public final FeederSubsystem m_feederSubsystem = new FeederSubsystem();
     public final PhotonVisionSystem vision = new PhotonVisionSystem(this::consumePhotonVisionMeasurement, () -> drivetrain.getState().Pose);
     public final LED m_led = new LED();
 
@@ -124,7 +126,7 @@ public class RobotContainer {
 
         NamedCommands.registerCommand("Intake", 
             new IntakeCMD(m_intakeSubsystem)
-            .alongWith(new FeederPercentCommand(m_hopperSubsystem, false))
+            .alongWith(new FeederPercentCommand(m_feederSubsystem, false, FeederPercentSetpoint.Intake))
         );
 
         NamedCommands.registerCommand("Outtake", 
@@ -193,9 +195,11 @@ public class RobotContainer {
         );
 
         
-
+        // set default command for subsystems. this is what the subsystem does if not commanded to do something else
         m_intakeSubsystem.setDefaultCommand(new IntakePercentDefaultCommand(m_intakeSubsystem));
-        
+        m_shooterSubsystem.setDefaultCommand(new ShooterPercentDefaultCommand(m_shooterSubsystem));
+
+
         ///// Alternate driving
         /* Y (hold) -> Vision-constricted driving */
         joystick.y().whileTrue(
@@ -275,41 +279,34 @@ public class RobotContainer {
         // Left Trigger (hold) -> Intake
         joystick.leftTrigger().whileTrue(
             new IntakePercentCommand(m_intakeSubsystem)
-            .alongWith(Commands.runOnce(()->SmartDashboard.putBoolean("Intaking", true)))
         );
 
         
         // Left Bumper (hold) -> Outtake intake
         joystick.leftBumper().whileTrue(
             new OuttakePercentCommand(m_intakeSubsystem)
-            .alongWith(Commands.runOnce(()->SmartDashboard.putBoolean("Outtaking", true)))
         );
-        joystick.leftBumper().onFalse(Commands.runOnce(()->SmartDashboard.putBoolean("Outtaking", false)));
         
         
         // Right bumper (hold) -> Shoot(near)
         joystick.rightBumper().whileTrue(
-            
             new ShooterPercentSetpointCommand(m_shooterSubsystem, ShooterPercentSetpoint.Near)
-            .alongWith(new FeederPercentCommand(m_hopperSubsystem))
-            .alongWith(Commands.runOnce(() -> SmartDashboard.putBoolean("Shooting", true)))
+            .alongWith(new FeederPercentCommand(m_feederSubsystem, FeederPercentSetpoint.Feed))
         );
-
-        joystick.rightBumper().onFalse(Commands.runOnce(()->SmartDashboard.putBoolean("Shooting", false)));
 
         // Right trigger (hold) -> Shoot(far)
         joystick.rightTrigger().whileTrue(
-
             new ShooterPercentSetpointCommand(m_shooterSubsystem, ShooterPercentSetpoint.Far)
-            .alongWith(new FeederPercentCommand(m_hopperSubsystem))
-            .alongWith(Commands.runOnce(()->SmartDashboard.putBoolean("Shooting", true)))
+            .alongWith(new FeederPercentCommand(m_feederSubsystem, FeederPercentSetpoint.Feed))
         );
 
-        joystick.rightTrigger().onFalse(Commands.runOnce(()->SmartDashboard.putBoolean("Shooting", false)));
-
-        // A (hold) -> Run hopper (useful for agitation)
+        // X (hold) -> Run feeder (useful for agitation)
         joystick.x().whileTrue(
-            new FeederPercentCommand(m_hopperSubsystem)
+            Commands.runOnce(()->m_feederSubsystem.runFeederPercentWithoutKicker(0.5))
+        );
+        // B (hold) -> Run feeder backward
+        joystick.b().whileTrue(
+            new FeederPercentCommand(m_feederSubsystem, FeederPercentSetpoint.Outtake)
         );
 
     }

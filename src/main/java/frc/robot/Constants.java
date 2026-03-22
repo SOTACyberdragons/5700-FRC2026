@@ -12,6 +12,7 @@ import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
 import edu.wpi.first.wpilibj.util.Color;
+import frc.robot.commands.FeederVelocityCommand;
 
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide
@@ -46,7 +47,7 @@ public final class Constants {
 		// intake
 		public static final int INTAKE_MOTOR_ID = 19;
 
-		public static final int HOPPER_MOTOR_ID = 0;
+		public static final int FEEDER_MOTOR_ID = 18;
 
 		public static final int SHOOTER_LEADER_MOTOR_ID = 14;
 		public static final int SHOOTER_FOLLOWER_MOTOR_ID = 17;
@@ -55,7 +56,7 @@ public final class Constants {
 
 	public static class DrivetrainConstants {
 		public static final double MAX_ANGULAR_RATE = 0.75; // 3/4 of a rotation per second max angular velocity
-		public static final double MAX_SPEED_MULTIPLIER = 1;
+		public static final double MAX_SPEED_MULTIPLIER = 0.6;
 		public static final int SKEW_RATE_LIMITER_Y = 3;
 		public static final int SKEW_RATE_LIMITER_X = 3;
 		public static final int SKEW_RATE_LIMITER_ROTATION = 4;
@@ -123,7 +124,7 @@ public final class Constants {
 
 		public static final double INTAKE_PERCENT = -0.35;
 		public static final double OUTTAKE_PERCENT = 0.5;
-		public static final double SLEEP_PERCENT = 10;
+		public static final double SLEEP_PERCENT = 0.00;
 	}
 
     public enum IntakePercentSetpoint {
@@ -152,16 +153,56 @@ public final class Constants {
         }
     }
 
-	public static class HopperConstants {
+	public static class FeederConstants {
         public static final double KICKER_PERCENT = 0.6;
         public static final double KICKER_RPM = 90;
 
 
-        public static final double HOPPER_RPM = 90; // -90
+        public static final double INTAKE_RPM = 90; // -90
+		public static final double FEED_RPM = 100;
+		public static final double OUTTAKE_RPM = -90;
+		public static final double SLEEP_RPM = 0.0;
+
+		public static final double INTAKE_PERCENT = 0.5;
+		public static final double FEED_PERCENT = 0.6;
+		public static final double OUTTAKE_PERCENT = -0.5;
+		public static final double SLEEP_PERCENT = 0.0;
+
+	}		
+
+	public enum FeederPercentSetpoint {
+		Intake(Constants.FeederConstants.INTAKE_PERCENT),
+		Feed(Constants.FeederConstants.FEED_PERCENT),
+		Outtake(Constants.FeederConstants.OUTTAKE_PERCENT),
+		Sleep(Constants.FeederConstants.SLEEP_PERCENT);
+
+
+		/** The velocity target of the setpoint. */
+		public final double percent;
+
+		private FeederPercentSetpoint(double percent) {
+			this.percent = percent;
+		}
+	}
+
+	public enum FeederVelocitySetpoint {
+		Intake(Constants.FeederConstants.INTAKE_RPM),
+		Feed(Constants.FeederConstants.FEED_RPM),
+		Outtake(Constants.FeederConstants.OUTTAKE_RPM),
+		Sleep(Constants.FeederConstants.SLEEP_RPM);
+
+
+		/** The velocity target of the setpoint. */
+		public final double velocity;
+
+		private FeederVelocitySetpoint(double velocity) {
+			this.velocity = velocity;
+		}
 	}
 
 	public static class ShooterConstants {
 		public static final double FEEDER_DELAY = 1.0;
+		public static final double FEEDER_SPINDOWN_DELAY = 1.0;
 
 		public static final double OUTTAKE_PERCENT = 0.5;
 		public static final double SHOOT_FAR_PERCENT = 1.0;
@@ -175,20 +216,16 @@ public final class Constants {
 		public static final double LEADER_MOTOR_CONFIG_KV = 0.12;
 		public static final double LEADER_MOTOR_CONFIG_KA = 0;
 
+		public static final double OUTTAKE_RPM = 0.0;
+		public static final double SNOOT_NEAR_RPM = 0.0;
+		public static final double SHOOT_FAR_RPM = 0.0;
+		public static final double SLEEP_RPM = 0.0;
+	}
 
 	public static class LEDConstants {
 		public static final int PWM_PORT = 1;
 		public static final int LED_LENGTH = 38;
 		public static final double BLINK_TIME = 0.1;
-		// Colors
-		/*
-		 * teleop
-		 * vision
-		 * shooting
-		 * intaking		 
-		 * alliance shift?
-		 * - prob not, just have co-driver do it
-		*/
 		
 		public static final Color COLOR_GREEN = new Color(0,255,0);
 		public static final Color COLOR_RED = new Color(255,0,0);
@@ -197,35 +234,34 @@ public final class Constants {
 		public static final Color COLOR_PURPLE = new Color(255,0,255);
 		public static final Color COLOR_ORANGE = new Color(255,127,0);
 	}
-}
 
-    public enum ShooterPercentSetpoint {
-        Outtake(Constants.ShooterConstants.OUTTAKE_PERCENT),
-        Near(Constants.ShooterConstants.SNOOT_NEAR_PERCENT),
-        Far(Constants.ShooterConstants.SHOOT_FAR_PERCENT),
-        Sleep(Constants.ShooterConstants.SLEEP_PERCENT);
-
-
-        /** The velocity target of the setpoint. */
-        public final double percent;
-
-        private ShooterPercentSetpoint(double percent) {
-            this.percent = percent;
-        }
-    }
-
-    public enum ShooterVelocitySetpoint {
-        Outtake(Constants.ShooterConstants.OUTTAKE_PERCENT),
-        Near(Constants.ShooterConstants.SNOOT_NEAR_PERCENT),
-        Far(Constants.ShooterConstants.SHOOT_FAR_PERCENT),
-        Sleep(Constants.ShooterConstants.SLEEP_PERCENT);
+	
+	public enum ShooterPercentSetpoint {
+		Outtake(Constants.ShooterConstants.OUTTAKE_PERCENT),
+		Near(Constants.ShooterConstants.SNOOT_NEAR_PERCENT),
+		Far(Constants.ShooterConstants.SHOOT_FAR_PERCENT),
+		Sleep(Constants.ShooterConstants.SLEEP_PERCENT);
 
 
-        /** The velocity target of the setpoint. */
-        public final double velocity;
+		/** The velocity target of the setpoint. */
+		public final double percent;
 
-        private ShooterVelocitySetpoint(double velocity) {
-            this.velocity = velocity;
-        }
-    }
+		private ShooterPercentSetpoint(double percent) {
+			this.percent = percent;
+		}
+	}
+
+	public enum ShooterVelocitySetpoint {
+		Outtake(Constants.ShooterConstants.OUTTAKE_RPM),
+		Near(Constants.ShooterConstants.SNOOT_NEAR_RPM),
+		Far(Constants.ShooterConstants.SHOOT_FAR_RPM),
+		Sleep(Constants.ShooterConstants.SLEEP_RPM);
+
+		/** The velocity target of the setpoint. */
+		public final double velocity;
+
+		private ShooterVelocitySetpoint(double velocity) {
+			this.velocity = velocity;
+		}
+	}
 }

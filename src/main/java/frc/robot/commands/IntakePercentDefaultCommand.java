@@ -2,19 +2,19 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
-package frc.robot.commands.velocity;
+package frc.robot.commands;
 
-import frc.robot.Constants.IntakeVelocitySetpoint;
 import frc.robot.subsystems.IntakeSubsystem;
+import frc.robot.Constants.IntakePercentSetpoint;
 import edu.wpi.first.wpilibj2.command.Command;
 
-public class IntakeVelocityCommand extends Command {
+public class IntakePercentDefaultCommand extends Command {
 	private final IntakeSubsystem m_intakeSubsystem;
 
 	private boolean isKilled = false;
 
 
-	public IntakeVelocityCommand(IntakeSubsystem intakeSubsystem) {
+	public IntakePercentDefaultCommand(IntakeSubsystem intakeSubsystem) {
 		m_intakeSubsystem = intakeSubsystem;
 
 		addRequirements(intakeSubsystem);
@@ -28,11 +28,8 @@ public class IntakeVelocityCommand extends Command {
 	// Called every time the scheduler runs while the command is scheduled.
 	@Override
 	public void execute() {
-		// set the controller to the correct value
-		m_intakeSubsystem.intakVelocityVoltage.withVelocity(IntakeVelocitySetpoint.Intake.velocity);
-		// control the motor using the controller
-		m_intakeSubsystem.intakeMotor.setControl(m_intakeSubsystem.intakVelocityVoltage);
-
+		// set the motor to a basic speed for default
+		m_intakeSubsystem.intakeMotor.set(IntakePercentSetpoint.Sleep.percent);
 	}
 
 	// Called once the command ends or is interrupted.

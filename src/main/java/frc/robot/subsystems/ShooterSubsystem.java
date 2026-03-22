@@ -52,8 +52,6 @@ public class ShooterSubsystem extends SubsystemBase {
     
     private double feederDelay;
 
-    // TODO: add kicker motor
-
     /* device status signals */
     private final StatusSignal<AngularVelocity> leaderMotorVelocitySignal = leaderMotor.getVelocity(false);
     private final StatusSignal<Current> leaderMotorTorqueCurrentSignal = leaderMotor.getTorqueCurrent(false);
