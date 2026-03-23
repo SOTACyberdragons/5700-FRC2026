@@ -34,11 +34,13 @@ import frc.robot.commands.IntakePercentDefaultCommand;
 import frc.robot.commands.OuttakePercentCommand;
 import frc.robot.commands.ShooterPercentDefaultCommand;
 import frc.robot.commands.ShooterPercentSetpointCommand;
+import frc.robot.commands.SmartShootVelocityCommand;
 import frc.robot.commands.AutoCMDs.IntakeCMD;
 import frc.robot.commands.AutoCMDs.OuttakeCMD;
 
 
 import frc.robot.Constants.ShooterPercentSetpoint;
+import frc.robot.Constants.ShooterVelocitySetpoint;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.FeederSubsystem;
@@ -292,14 +294,16 @@ public class RobotContainer {
         
         // Right bumper (hold) -> Shoot(near)
         joystick.rightBumper().whileTrue(
-            new ShooterPercentSetpointCommand(m_shooterSubsystem, ShooterPercentSetpoint.Near)
-            .alongWith(new FeederPercentCommand(m_feederSubsystem, FeederPercentSetpoint.Feed))
+            // new ShooterPercentSetpointCommand(m_shooterSubsystem, ShooterPercentSetpoint.Near)
+            // .alongWith(new FeederPercentCommand(m_feederSubsystem, FeederPercentSetpoint.Feed))
+            new SmartShootVelocityCommand(m_shooterSubsystem, m_feederSubsystem, ShooterVelocitySetpoint.Near)
         );
 
         // Right trigger (hold) -> Shoot(far)
         joystick.rightTrigger().whileTrue(
-            new ShooterPercentSetpointCommand(m_shooterSubsystem, ShooterPercentSetpoint.Far)
-            .alongWith(new FeederPercentCommand(m_feederSubsystem, FeederPercentSetpoint.Feed))
+            // new ShooterPercentSetpointCommand(m_shooterSubsystem, ShooterPercentSetpoint.Far)
+            // .alongWith(new FeederPercentCommand(m_feederSubsystem, FeederPercentSetpoint.Feed))
+            new SmartShootVelocityCommand(m_shooterSubsystem, m_feederSubsystem, ShooterVelocitySetpoint.Far)
         );
 
         // X (hold) -> Run feeder (useful for agitation)
@@ -335,6 +339,7 @@ public class RobotContainer {
 
     public void periodic() {
         vision.periodic();
+
     }
 
     public void simulationPeriodic() {

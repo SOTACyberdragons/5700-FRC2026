@@ -50,8 +50,6 @@ public class ShooterSubsystem extends SubsystemBase {
     public final TalonFX leaderMotor = new TalonFX(Constants.IDs.SHOOTER_LEADER_MOTOR_ID, kCANBus);
     public final TalonFX followerMotor = new TalonFX(Constants.IDs.SHOOTER_FOLLOWER_MOTOR_ID, kCANBus);
     
-    private double feederDelay;
-
     /* device status signals */
     private final StatusSignal<AngularVelocity> leaderMotorVelocitySignal = leaderMotor.getVelocity(false);
     private final StatusSignal<Current> leaderMotorTorqueCurrentSignal = leaderMotor.getTorqueCurrent(false);
@@ -132,8 +130,8 @@ public class ShooterSubsystem extends SubsystemBase {
     }
 
     
-    public AngularVelocity getLeaderMotorVelocitySignal() {
-        return leaderMotorVelocitySignal.getValue();
+    public double getLeaderMotorVelocitySignal() {
+        return leaderMotorVelocitySignal.getValueAsDouble();
     }
 
     

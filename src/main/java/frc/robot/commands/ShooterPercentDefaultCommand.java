@@ -4,10 +4,8 @@
 
 package frc.robot.commands;
 
-import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
 import frc.robot.Constants;
-import frc.robot.Constants.IntakePercentSetpoint;
 import frc.robot.Constants.ShooterPercentSetpoint;
 
 import com.ctre.phoenix6.controls.Follower;

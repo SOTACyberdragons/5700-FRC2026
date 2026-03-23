@@ -21,7 +21,6 @@ public class ShooterPercentSetpointCommand extends Command {
 		m_shooterSubsystem = shooter;
 		shooterSetpoint = setpoint;
 		addRequirements(m_shooterSubsystem);
-
 	}
 
 	// Called when the command is initially scheduled.

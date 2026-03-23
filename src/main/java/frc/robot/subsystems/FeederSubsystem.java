@@ -79,7 +79,7 @@ public class FeederSubsystem extends SubsystemBase {
     }
 
 	public void runFeederPercentWithoutKicker(double percent){
-		feederPercentOutput.withOutput(0.5);
+		feederPercentOutput.withOutput(percent);
         feederMotor.setControl(feederPercentOutput);
     }
 
