@@ -279,12 +279,14 @@ public class RobotContainer {
         // Left Trigger (hold) -> Intake
         joystick.leftTrigger().whileTrue(
             new IntakePercentCommand(m_intakeSubsystem)
+            .alongWith(new FeederPercentCommand(m_feederSubsystem, FeederPercentSetpoint.Intake))
         );
 
         
         // Left Bumper (hold) -> Outtake intake
         joystick.leftBumper().whileTrue(
             new OuttakePercentCommand(m_intakeSubsystem)
+            .alongWith(new FeederPercentCommand(m_feederSubsystem, FeederPercentSetpoint.Outtake))
         );
         
         
@@ -302,7 +304,7 @@ public class RobotContainer {
 
         // X (hold) -> Run feeder (useful for agitation)
         joystick.x().whileTrue(
-            Commands.runOnce(()->m_feederSubsystem.runFeederPercentWithoutKicker(0.5))
+            new FeederPercentCommand(m_feederSubsystem, FeederPercentSetpoint.Intake)
         );
         // B (hold) -> Run feeder backward
         joystick.b().whileTrue(

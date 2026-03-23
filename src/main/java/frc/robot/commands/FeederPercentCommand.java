@@ -44,14 +44,14 @@ public class FeederPercentCommand extends Command {
 	@Override
 	public void execute() {
 		// run only if the time has passed
-		if(Timer.getFPGATimestamp()>feederDelay){
+		// if(Timer.getFPGATimestamp()>feederDelay){
 			// run the kicker only if commanded to
 			if (runKicker){
 				m_feederSubsystem.runFeederPercent(setpoint.percent);
 			} else {
 				m_feederSubsystem.runFeederPercentWithoutKicker(setpoint.percent);
 			}
-		}
+		
 		
 	}
 

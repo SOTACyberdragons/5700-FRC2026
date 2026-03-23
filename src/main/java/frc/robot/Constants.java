@@ -207,7 +207,7 @@ public final class Constants {
 		public static final double OUTTAKE_PERCENT = 0.5;
 		public static final double SHOOT_FAR_PERCENT = 1.0;
 		public static final double SNOOT_NEAR_PERCENT = 0.8;
-		public static final double SLEEP_PERCENT = 0.15;
+		public static final double SLEEP_PERCENT = 0.1;
 
 		public static final double LEADER_MOTOR_CONFIG_KP = 0.8;
 		public static final double LEADER_MOTOR_CONFIG_KI = 0;
