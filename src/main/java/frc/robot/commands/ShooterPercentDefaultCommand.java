@@ -34,9 +34,10 @@ public class ShooterPercentDefaultCommand extends Command {
 	@Override
 	public void execute() {
 		// set the motor to a basic speed for default
-		m_shooterSubsystem.leaderMotorPercentOutput.withOutput(ShooterPercentSetpoint.Sleep.percent);
-		m_shooterSubsystem.leaderMotor.setControl(m_shooterSubsystem.leaderMotorPercentOutput);
-		m_shooterSubsystem.followerMotor.setControl(new Follower(Constants.IDs.SHOOTER_LEADER_MOTOR_ID, MotorAlignmentValue.Opposed));
+		m_shooterSubsystem.coastFlywheel();
+		// m_shooterSubsystem.leaderMotorPercentOutput.withOutput(ShooterPercentSetpoint.Sleep.percent);
+		// m_shooterSubsystem.leaderMotor.setControl(m_shooterSubsystem.leaderMotorPercentOutput);
+		// m_shooterSubsystem.followerMotor.setControl(new Follower(Constants.IDs.SHOOTER_LEADER_MOTOR_ID, MotorAlignmentValue.Opposed));
 	}
 
 	// Called once the command ends or is interrupted.

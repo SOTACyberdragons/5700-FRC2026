@@ -163,6 +163,7 @@ public class ShooterSubsystem extends SubsystemBase {
     public Command coastFlywheel() {
         return runOnce(() -> {
             leaderMotor.setControl(coastRequest);
+            followerMotor.setControl(coastRequest);
         });
     }
 

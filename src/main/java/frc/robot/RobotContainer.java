@@ -281,14 +281,14 @@ public class RobotContainer {
         // Left Trigger (hold) -> Intake
         joystick.leftTrigger().whileTrue(
             new IntakePercentCommand(m_intakeSubsystem)
-            .alongWith(new FeederPercentCommand(m_feederSubsystem, FeederPercentSetpoint.Intake))
+            .alongWith(new FeederPercentCommand(m_feederSubsystem, false, FeederPercentSetpoint.Intake))
         );
 
         
         // Left Bumper (hold) -> Outtake intake
         joystick.leftBumper().whileTrue(
             new OuttakePercentCommand(m_intakeSubsystem)
-            .alongWith(new FeederPercentCommand(m_feederSubsystem, FeederPercentSetpoint.Outtake))
+            .alongWith(new FeederPercentCommand(m_feederSubsystem, false, FeederPercentSetpoint.Outtake))
         );
         
         
@@ -306,13 +306,13 @@ public class RobotContainer {
             new SmartShootVelocityCommand(m_shooterSubsystem, m_feederSubsystem, ShooterVelocitySetpoint.Far)
         );
 
-        // X (hold) -> Run feeder (useful for agitation)
+        // X (hold) -> Run feeder in (useful for agitation)
         joystick.x().whileTrue(
-            new FeederPercentCommand(m_feederSubsystem, FeederPercentSetpoint.Intake)
+            new FeederPercentCommand(m_feederSubsystem, false, FeederPercentSetpoint.Intake)
         );
-        // B (hold) -> Run feeder backward
+        // B (hold) -> Run feeder out (useful for depositing to human player)
         joystick.b().whileTrue(
-            new FeederPercentCommand(m_feederSubsystem, FeederPercentSetpoint.Outtake)
+            new FeederPercentCommand(m_feederSubsystem, false, FeederPercentSetpoint.Outtake)
         );
 
     }
