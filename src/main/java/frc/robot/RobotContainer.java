@@ -119,10 +119,10 @@ public class RobotContainer {
      */
     public RobotContainer() {
         // register all autoCMDs here
-        NamedCommands.registerCommand("Coast All", 
-            m_intakeSubsystem.coastIntake()
-            .alongWith(m_shooterSubsystem.coastFlywheel())
-        );
+        // NamedCommands.registerCommand("Coast All", 
+        //     m_intakeSubsystem.coastIntake()
+        //     .alongWith(m_shooterSubsystem.coastFlywheel())
+        // );
 
         // TODO: instead of coasting, just move at small voltage
 
@@ -200,6 +200,7 @@ public class RobotContainer {
         // set default command for subsystems. this is what the subsystem does if not commanded to do something else
         m_intakeSubsystem.setDefaultCommand(new IntakePercentDefaultCommand(m_intakeSubsystem));
         m_shooterSubsystem.setDefaultCommand(new ShooterPercentDefaultCommand(m_shooterSubsystem));
+        m_feederSubsystem.setDefaultCommand(m_feederSubsystem.coastFeeder());
 
 
         ///// Alternate driving

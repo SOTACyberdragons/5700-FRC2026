@@ -156,7 +156,7 @@ public final class Constants {
         public static final double KICKER_PERCENT = 0.6;
         public static final double KICKER_RPM = 90.0;
 
-		public static final double CLOSE_ENOUGH = 1;
+		public static final double CLOSE_ENOUGH = 0.5;
 
         public static final double INTAKE_RPM = 90; // -90
 		public static final double FEED_RPM = 100;
@@ -209,7 +209,7 @@ public final class Constants {
 		public static final double SNOOT_NEAR_PERCENT = 0.8;
 		public static final double SLEEP_PERCENT = 0.05;
 
-		public static final double LEADER_MOTOR_CONFIG_KP = 0.8;
+		public static final double LEADER_MOTOR_CONFIG_KP = 1.0;
 		public static final double LEADER_MOTOR_CONFIG_KI = 0;
 		public static final double LEADER_MOTOR_CONFIG_KD = 0;
 		public static final double LEADER_MOTOR_CONFIG_KS = 0;
@@ -217,8 +217,8 @@ public final class Constants {
 		public static final double LEADER_MOTOR_CONFIG_KA = 0;
 
 		public static final double OUTTAKE_RPM = 0.0;
-		public static final double SNOOT_NEAR_RPM = 0.0;
-		public static final double SHOOT_FAR_RPM = 300.0;
+		public static final double SNOOT_NEAR_RPM = 50.0;
+		public static final double SHOOT_FAR_RPM = 80.0;
 		public static final double SLEEP_RPM = 0.0;
 	}
 

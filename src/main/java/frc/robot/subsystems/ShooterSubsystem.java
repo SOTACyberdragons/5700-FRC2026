@@ -119,9 +119,6 @@ public class ShooterSubsystem extends SubsystemBase {
         }
 
 
-        /* set the default command to neutral output */
-        setDefaultCommand(coastFlywheel());
-
         SmartDashboard.putData("Flywheel leaderMotor", leaderMotorMech2d);
 
         if (Utils.isSimulation()) {
@@ -160,11 +157,9 @@ public class ShooterSubsystem extends SubsystemBase {
      *
      * @return Command to run
      */
-    public Command coastFlywheel() {
-        return runOnce(() -> {
-            leaderMotor.setControl(coastRequest);
-            followerMotor.setControl(coastRequest);
-        });
+    public void coastFlywheel() {
+        leaderMotor.setControl(coastRequest);
+        followerMotor.setControl(coastRequest);
     }
 
     @Override
