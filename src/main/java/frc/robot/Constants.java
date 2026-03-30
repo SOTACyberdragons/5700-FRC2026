@@ -209,7 +209,7 @@ public final class Constants {
 		public static final double SNOOT_NEAR_PERCENT = 0.8;
 		public static final double SLEEP_PERCENT = 0.05;
 
-		public static final double LEADER_MOTOR_CONFIG_KP = 2.0;
+		public static final double LEADER_MOTOR_CONFIG_KP = 1.5;
 		public static final double LEADER_MOTOR_CONFIG_KI = 0.1;
 		public static final double LEADER_MOTOR_CONFIG_KD = 0;
 		public static final double LEADER_MOTOR_CONFIG_KS = 0;
