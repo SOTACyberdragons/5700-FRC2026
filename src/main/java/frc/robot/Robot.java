@@ -12,6 +12,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 
 public class Robot extends TimedRobot {
+
     CANBus replayBus = new CANBus("*", "logs/2026-01-15_13-18-58/sim_2026-01-15_13-18-58.hoot");
     private Command m_autonomousCommand;
 
@@ -89,4 +90,5 @@ public class Robot extends TimedRobot {
     public void simulationPeriodic() {
         m_robotContainer.simulationPeriodic();
     }
+   
 }
