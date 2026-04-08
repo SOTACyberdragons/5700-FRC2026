@@ -11,33 +11,24 @@ import frc.robot.Constants.FeederPercentSetpoint;
 import frc.robot.subsystems.FeederSubsystem;
 
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
-public class FeederPercentCommand extends Command {
+public class FeederDefaultCommand extends Command {
 	private FeederSubsystem m_feederSubsystem;
-	private double feederDelay;
-	private boolean runKicker;
-	private FeederPercentSetpoint setpoint;
+	
 
 	private boolean isKilled = false;
 
-	public FeederPercentCommand(FeederSubsystem feeder, boolean runKicker, FeederPercentSetpoint setpoint) {
+	public FeederDefaultCommand(FeederSubsystem feeder) {
 		m_feederSubsystem = feeder;
-		this.runKicker = runKicker;
-		this.setpoint = setpoint;
+		
 		addRequirements(m_feederSubsystem);
 	}
 
-	public FeederPercentCommand(FeederSubsystem feeder, FeederPercentSetpoint setpoint) {
-		m_feederSubsystem = feeder;
-		this.runKicker = true;
-		this.setpoint = setpoint;
-		addRequirements(m_feederSubsystem);
-	}
-
+	
 	// Called when the command is initially scheduled.
 	@Override
 	public void initialize() {
 		// initialize the timer for the delay
-		feederDelay = Timer.getFPGATimestamp()+ Constants.ShooterConstants.FEEDER_DELAY;
+		
 	}
 
 	// Called every time the scheduler runs while the command is scheduled.
@@ -46,11 +37,9 @@ public class FeederPercentCommand extends Command {
 		// run only if the time has passed
 		// if(Timer.getFPGATimestamp()>feederDelay){
 			// run the kicker only if commanded to
-			//if (runKicker){
-				m_feederSubsystem.runFeederPercent(setpoint.percent);
-			//} else {
-			//	m_feederSubsystem.runFeederPercentWithoutKicker(setpoint.percent);
-			//}
+
+				m_feederSubsystem.runFeederPercent(0);
+			
 		
 		
 	}

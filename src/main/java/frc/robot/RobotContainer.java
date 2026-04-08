@@ -28,6 +28,7 @@ import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.FeederPercentSetpoint;
 import frc.robot.Constants.OperatorConstants;
+import frc.robot.commands.FeederDefaultCommand;
 import frc.robot.commands.FeederPercentCommand;
 import frc.robot.commands.IntakePercentCommand;
 import frc.robot.commands.IntakePercentDefaultCommand;
@@ -200,7 +201,7 @@ public class RobotContainer {
         // set default command for subsystems. this is what the subsystem does if not commanded to do something else
         m_intakeSubsystem.setDefaultCommand(new IntakePercentDefaultCommand(m_intakeSubsystem));
         m_shooterSubsystem.setDefaultCommand(new ShooterPercentDefaultCommand(m_shooterSubsystem));
-        m_feederSubsystem.setDefaultCommand(m_feederSubsystem.coastFeeder());
+        m_feederSubsystem.setDefaultCommand(new FeederDefaultCommand(m_feederSubsystem));
 
 
         ///// Alternate driving

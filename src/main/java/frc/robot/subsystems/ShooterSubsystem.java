@@ -54,6 +54,8 @@ public class ShooterSubsystem extends SubsystemBase {
     private final StatusSignal<AngularVelocity> leaderMotorVelocitySignal = leaderMotor.getVelocity(false);
     private final StatusSignal<Current> leaderMotorTorqueCurrentSignal = leaderMotor.getTorqueCurrent(false);
 
+   
+
     
     /* controls used by the motors*/
     public final VelocityVoltage leaderMotorVelocityVoltage = new VelocityVoltage(0);
@@ -129,6 +131,12 @@ public class ShooterSubsystem extends SubsystemBase {
     
     public double getLeaderMotorVelocitySignal() {
         return leaderMotorVelocitySignal.getValueAsDouble();
+
+    }
+
+    public double getLeaderMotorRotorSignal() {
+        return leaderMotor.getRotorVelocity().getValueAsDouble();
+
     }
 
     

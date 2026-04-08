@@ -32,6 +32,8 @@ public class SmartShootVelocityCommand extends Command {
     @Override
     public void initialize() {
 		SmartDashboard.putBoolean("Shooting", true);
+		m_feederSubsystem.runFeederPercent(0);
+		m_shooterSubsystem.runShooterVelocity(setpoint.velocity);
 	}
 
     // Called every time the scheduler runs while the command is scheduled.
@@ -39,7 +41,7 @@ public class SmartShootVelocityCommand extends Command {
     public void execute() {
 		m_shooterSubsystem.runShooterVelocity(setpoint.velocity);
 		// if the current velocity is close enough (within the threshold) of the setpoint, run the kicker. this ensures not only that the kicker only runs when the shooter is up to speed, but also that if you decrease the speed, the shooter only shoots when at that speed
-		if (m_shooterSubsystem.getLeaderMotorVelocitySignal() > (setpoint.velocity - Constants.FeederConstants.CLOSE_ENOUGH)) {
+		if (m_shooterSubsystem.getLeaderMotorRotorSignal() > (setpoint.velocity - Constants.FeederConstants.CLOSE_ENOUGH)) {
 			// run kicker if shooter is at the right speed
 			m_feederSubsystem.runFeederPercent(Constants.FeederPercentSetpoint.Feed.percent);
     	} else {
