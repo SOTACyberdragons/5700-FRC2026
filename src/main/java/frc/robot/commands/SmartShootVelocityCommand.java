@@ -32,7 +32,7 @@ public class SmartShootVelocityCommand extends Command {
     @Override
     public void initialize() {
 		SmartDashboard.putBoolean("Shooting", true);
-		m_feederSubsystem.runFeederPercent(0);
+
 		m_shooterSubsystem.runShooterVelocity(setpoint.velocity);
 	}
 
@@ -45,7 +45,7 @@ public class SmartShootVelocityCommand extends Command {
 			// run kicker if shooter is at the right speed
 			m_feederSubsystem.runFeederPercent(Constants.FeederPercentSetpoint.Feed.percent);
     	} else {
-			m_feederSubsystem.runFeederPercent(0);
+			m_feederSubsystem.runFeederPercentWithoutKicker(0);
 		}
 		// run the shooter only if the speed is less than the setpoint
 		// run only the shooter if it isn't up to speed yet
@@ -55,6 +55,7 @@ public class SmartShootVelocityCommand extends Command {
     @Override
     public void end(boolean interrupted) {
 		SmartDashboard.putBoolean("Shooting", false);
+		m_feederSubsystem.runFeederPercentWithoutKicker(0);
 	}
 
     // Returns true when the command should end.

@@ -38,8 +38,8 @@ public class FeederDefaultCommand extends Command {
 		// if(Timer.getFPGATimestamp()>feederDelay){
 			// run the kicker only if commanded to
 
-				m_feederSubsystem.runFeederPercent(0);
-			
+				m_feederSubsystem.runFeederPercentWithoutKicker(0);
+				m_feederSubsystem.kickerMotor.set(0);
 		
 		
 	}
