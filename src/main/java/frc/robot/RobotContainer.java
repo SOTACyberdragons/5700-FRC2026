@@ -323,7 +323,7 @@ public class RobotContainer {
             new SmartShootVelocityCommand(m_shooterSubsystem, m_feederSubsystem, ShooterVelocitySetpoint.Far)
         );
 
-        // X (hold) -> Run feeder in (useful for agitation) -- this is so cool :)
+        // X (hold) -> Run feeder in (useful for agitation) -- this is so cool :3
         joystick.x().whileTrue(
             new FeederPercentCommand(m_feederSubsystem, (joystick.rightTrigger().getAsBoolean() || joystick.rightBumper().getAsBoolean()), FeederPercentSetpoint.Intake)
         );
