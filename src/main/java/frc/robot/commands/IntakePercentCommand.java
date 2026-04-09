@@ -8,6 +8,7 @@ import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.Constants.IntakePercentSetpoint;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 
 public class IntakePercentCommand extends Command {
 	private final IntakeSubsystem m_intakeSubsystem;
@@ -31,6 +32,9 @@ public class IntakePercentCommand extends Command {
 	@Override
 	public void execute() {
 
+		
+		
+		
 		// change the controller to the correct value
 		m_intakeSubsystem.intakePercentOutput.withOutput(IntakePercentSetpoint.Intake.percent);
 

@@ -141,6 +141,15 @@ public class RobotContainer {
             Commands.runOnce(() -> targetHub.withTargetDirection(vision.getHeadingToHubFieldRelative()))
         );
 
+        NamedCommands.registerCommand("Shoot Near", 
+            new SmartShootVelocityCommand(m_shooterSubsystem, m_feederSubsystem, ShooterVelocitySetpoint.Near)
+        );
+
+        NamedCommands.registerCommand("Shoot Far",
+             new SmartShootVelocityCommand(m_shooterSubsystem, m_feederSubsystem, ShooterVelocitySetpoint.Far)
+        );
+
+
         // auto stuff
         autoChooser = AutoBuilder.buildAutoChooser("Tests");
         SmartDashboard.putData("Auto Mode", autoChooser);
@@ -150,6 +159,7 @@ public class RobotContainer {
         SmartDashboard.putBoolean("Outtaking", false);
         SmartDashboard.putBoolean("Shooting", false);
         SmartDashboard.putBoolean("Braking", false);
+        SmartDashboard.putBoolean("Should kick", false);
 
 
 
@@ -281,16 +291,20 @@ public class RobotContainer {
         /////// Shooting and intaking
 
         // Left Trigger (hold) -> Intake
+        joystick.leftTrigger().onTrue(
+            new OuttakePercentCommand(m_intakeSubsystem)
+            .andThen(Commands.waitSeconds(1.0))
+        );
         joystick.leftTrigger().whileTrue(
-            new IntakePercentCommand(m_intakeSubsystem)
-            .alongWith(new FeederPercentCommand(m_feederSubsystem, false, FeederPercentSetpoint.Intake))
+           new IntakePercentCommand(m_intakeSubsystem)
+            // .alongWith(new FeederPercentCommand(m_feederSubsystem, false, FeederPercentSetpoint.Intake))
         );
 
         
         // Left Bumper (hold) -> Outtake intake
         joystick.leftBumper().whileTrue(
             new OuttakePercentCommand(m_intakeSubsystem)
-            .alongWith(new FeederPercentCommand(m_feederSubsystem, false, FeederPercentSetpoint.Outtake))
+            // .alongWith(new FeederPercentCommand(m_feederSubsystem, false, FeederPercentSetpoint.Outtake))
         );
         
         
@@ -301,6 +315,7 @@ public class RobotContainer {
             new SmartShootVelocityCommand(m_shooterSubsystem, m_feederSubsystem, ShooterVelocitySetpoint.Near)
         );
 
+
         // Right trigger (hold) -> Shoot(far)
         joystick.rightTrigger().whileTrue(
             // new ShooterPercentSetpointCommand(m_shooterSubsystem, ShooterPercentSetpoint.Far)
@@ -308,9 +323,9 @@ public class RobotContainer {
             new SmartShootVelocityCommand(m_shooterSubsystem, m_feederSubsystem, ShooterVelocitySetpoint.Far)
         );
 
-        // X (hold) -> Run feeder in (useful for agitation)
+        // X (hold) -> Run feeder in (useful for agitation) -- this is so cool :)
         joystick.x().whileTrue(
-            new FeederPercentCommand(m_feederSubsystem, false, FeederPercentSetpoint.Intake)
+            new FeederPercentCommand(m_feederSubsystem, (joystick.rightTrigger().getAsBoolean() || joystick.rightBumper().getAsBoolean()), FeederPercentSetpoint.Intake)
         );
         // B (hold) -> Run feeder out (useful for depositing to human player)
         joystick.b().whileTrue(
@@ -341,7 +356,7 @@ public class RobotContainer {
 
     public void periodic() {
         vision.periodic();
-
+        SmartDashboard.putBoolean("Should kick", (joystick.rightTrigger().getAsBoolean() && joystick.rightBumper().getAsBoolean()));
     }
 
     public void simulationPeriodic() {

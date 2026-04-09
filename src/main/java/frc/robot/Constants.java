@@ -121,7 +121,7 @@ public final class Constants {
 		public static final double OUTTAKE_RPM = -70;
 		public static final double FEED_TO_SHOOT_RPM = 90; // -90
 
-		public static final double INTAKE_PERCENT = -0.35;
+		public static final double INTAKE_PERCENT = -0.45;
 		public static final double OUTTAKE_PERCENT = 0.5;
 		public static final double SLEEP_PERCENT = 0.00;
 	}
@@ -165,7 +165,7 @@ public final class Constants {
 
 		public static final double INTAKE_PERCENT = 0.4;
 		public static final double FEED_PERCENT = 0.5;
-		public static final double OUTTAKE_PERCENT = -0.4;
+		public static final double OUTTAKE_PERCENT = -0.8;
 		public static final double SLEEP_PERCENT = 0.0;
 
 	}		
