@@ -37,7 +37,7 @@ public final class Constants {
 			)
 			.withCurrentLimits(
 				new CurrentLimitsConfigs()
-					.withStatorCurrentLimit(Amps.of(120))
+					.withStatorCurrentLimit(Amps.of(100))
 					.withStatorCurrentLimitEnable(true)
 			);
 	}
@@ -163,9 +163,9 @@ public final class Constants {
 		public static final double OUTTAKE_RPM = -90;
 		public static final double SLEEP_RPM = 0.0;
 
-		public static final double INTAKE_PERCENT = 0.4;
-		public static final double FEED_PERCENT = 0.5;
-		public static final double OUTTAKE_PERCENT = -0.8;
+		public static final double INTAKE_PERCENT = 0.8;
+		public static final double FEED_PERCENT = 0.25;
+		public static final double OUTTAKE_PERCENT = -0.5;
 		public static final double SLEEP_PERCENT = 0.0;
 
 	}		

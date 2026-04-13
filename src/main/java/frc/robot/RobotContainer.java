@@ -325,7 +325,7 @@ public class RobotContainer {
 
         // X (hold) -> Run feeder in (useful for agitation) -- this is so cool :3
         joystick.x().whileTrue(
-            new FeederPercentCommand(m_feederSubsystem, (joystick.rightTrigger().getAsBoolean() || joystick.rightBumper().getAsBoolean()), FeederPercentSetpoint.Intake)
+            new FeederPercentCommand(m_feederSubsystem, (joystick.rightTrigger().getAsBoolean() || joystick.rightBumper().getAsBoolean()), FeederPercentSetpoint.Feed)
         );
         // B (hold) -> Run feeder out (useful for depositing to human player)
         joystick.b().whileTrue(
