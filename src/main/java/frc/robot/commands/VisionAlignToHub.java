@@ -10,29 +10,32 @@ import com.ctre.phoenix6.swerve.SwerveRequest;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.Constants;
-import frc.robot.LimelightHelpers;
+import frc.robot.Constants.VisionConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.VisionSubsystem;
 
+
+//TODO: as of right now, this just aligns to whatever tag. the goal would be for it to align differently based on what tag it sees.
 public class VisionAlignToHub extends Command {
 
     private final CommandSwerveDrivetrain drivetrain;
     private final VisionSubsystem visionsubsystem;
 
-    private final PIDController rotationPID = new PIDController(0.05, 0, 0); //tx
-    private final PIDController forwardPID = new PIDController(2, 0, 0); //ty
-    private final PIDController lateralPID = new PIDController(2, 0, 0.01);
+    // these pid controllers allow us to control how the robot moves to the target (when it speeds up/slows down and how much)
+    private final PIDController rotationPID = new PIDController(VisionConstants.VISION_ROTATION_KP, VisionConstants.VISION_ROTATION_KI, VisionConstants.VISION_ROTATION_KD);
+    private final PIDController forwardPID = new PIDController(VisionConstants.VISION_FORWARD_KP, VisionConstants.VISION_FORWARD_KI, VisionConstants.VISION_FORWARD_KD);
+    private final PIDController lateralPID = new PIDController(VisionConstants.VISION_LATERAL_KP, VisionConstants.VISION_LATERAL_KI, VisionConstants.VISION_LATERAL_KD);
 
+    // this drive request allows us to control the drivetrain
     private final SwerveRequest.RobotCentric visionRequest = new SwerveRequest.RobotCentric()
             .withDriveRequestType(DriveRequestType.Velocity);
 
-    private int direction;
-
+    // thses directives will later be passed to the visionRequest to make the robot drive
     private double forwardCommand;
     private double lateralCommand;
     private double rotationCommand;
 
+    // this is the current joystick input. we only use lateral as of right now
     private Supplier<Double> forwardSupplier;
     private Supplier<Double> lateralSupplier;
     private Supplier<Double> rotationSupplier;
@@ -60,24 +63,50 @@ public class VisionAlignToHub extends Command {
     // Called every time the scheduler runs while the command is scheduled.
     @Override
     public void execute() {
-        double tx = LimelightHelpers.getTX(Constants.IDs.LIMELIGHT_NAME);
-        if (visionsubsystem.getTargetVisible()) {
-            forwardCommand = forwardPID.calculate(visionsubsystem.getForward(), Constants.VisionConstants.TARGET_DISTANCE_FROM_HUB);
-            rotationCommand = rotationPID.calculate(tx, 0);
+        // if we can see a tag
+        //  && visionsubsystem.isTagVisible(VisionConstants.BEST_TAG_ID)
+        if (visionsubsystem.getTagVisible()) {
+            //TODO: use the best tag if possible
+            // create a directive to move forward by the difference between (the distance between the hub and the bot) and (the shoot distance setpoint)
+            forwardCommand = forwardPID.calculate(
+                visionsubsystem.getHubForward(), 
+                VisionConstants.LONG_SHOOT_DIST_TO_HUB
+            );
+            // create a directive to rotate by the difference between the hub's rotation and 0 (aka rotate to the hub's rotation)
+            rotationCommand = rotationPID.calculate(
+                visionsubsystem.getHubRotation(), 
+                0
+            );
+
         } else {
             forwardCommand = 0;//lateralSupplier.get();
             rotationCommand = 0;//rotationSupplier.get();
         }
 
-        if (tx < 0.5) {
-            rotationCommand = 0;
-        }
+        // due to pid error, we will never be exactly on target, so we stop worrying about it when we're close enough
+        // check if the rotation to the hub relative to the bot is less than our constant
+        // if so, stop worrying about it
+        // if (abs(visionsubsystem.getHubRotation()) >= VisionConstants.CLOSE_ENOUGH_ROT) {
+        //     rotationCommand = 0;
+        // }
+        
+        // // do the same with forward
+        // if (abs(visionsubsystem.getHubForward()) >= VisionConstants.CLOSE_ENOUGH_FOR) {
+        //     forwardCommand = 0;
+        // }
 
+
+
+        // still drive with lateral, but get it from the joystick (aka vision doesn't control lat)
         lateralCommand = lateralSupplier.get();
+
+        System.out.println(forwardCommand);
+        System.out.println(rotationCommand);
+        // this part does the actual driving, using the previously determined commands in place of joystick input
         drivetrain.setControl(
-                visionRequest.withVelocityX(forwardCommand * Constants.VisionConstants.VISION_SPEED_MULTIPLIER)//forwardCommand
-                        .withVelocityY(-lateralCommand)//-lateralCommand
-                        .withRotationalRate(rotationCommand * Constants.VisionConstants.VISION_SPEED_MULTIPLIER)//rotationCommand
+                visionRequest.withVelocityX(forwardCommand * VisionConstants.VISION_SPEED_MULTIPLIER)
+                        .withVelocityY(-lateralCommand) //FIXME: if you want to slow our sotm multiply this by the speed multiplier
+                        .withRotationalRate(rotationCommand * VisionConstants.VISION_SPEED_MULTIPLIER)
         );
     }
 

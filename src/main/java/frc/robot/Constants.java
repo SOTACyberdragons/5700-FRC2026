@@ -72,22 +72,40 @@ public final class Constants {
 
 	public static class VisionConstants {
 
-		// VisionSubsystem.java ln 222
-		public static final String APRIL_TAG_1_NAME = "limelight-left";
+        //setpoints
+        public static final double LONG_SHOOT_DIST_TO_HUB = 2.0; //UPDATE FROM REAL
+        public static final double SHORT_SHOOT_DIST_TO_HUB = 1.0; //UPDATE FROM REAL
 
-		// VisionMoveToTarget.java ln 76, AutoVisionCMD ln 66
-
-        public static final double TARGET_DISTANCE_FROM_HUB = 1.0; //UPDATE FROM REAL
-
-        // hub tag constants
-        public static final double HUB_TAG_HEIGHT = 6.5; //UPDATE FROM REAL
+        // hub tag placement
+        public static final double HUB_TAG_HEIGHT = 1.27;
+        public static final double TAG_TO_HUB_DIST = 1.0;
 
         // camera mounting
-        public static final double CAMERA_MOUNT_HEIGHT = 0.48; //UPDATE FROM REAL
+        public static final double CAMERA_MOUNT_HEIGHT = 0.52; //UPDATE FROM REAL
         // degrees
         public static final double CAMERA_MOUNT_ANGLE = 22;
 
+        //limit the drive speed for vision so we don't hurt anyone 
         public static final double VISION_SPEED_MULTIPLIER = 0.5;
+
+        public static final double CLOSE_ENOUGH_ROT = 0.5;
+        public static final double CLOSE_ENOUGH_FOR = 0.5;
+        public static final double CLOSE_ENOUGH_LAT = 0.5;
+
+        //vision pid
+        public static final double VISION_ROTATION_KP = 0.05;
+        public static final double VISION_ROTATION_KI = 0.0;
+        public static final double VISION_ROTATION_KD = 0.0;
+
+        public static final double VISION_FORWARD_KP = 2.0;
+        public static final double VISION_FORWARD_KI = 0.0;
+        public static final double VISION_FORWARD_KD = 0.0;
+
+        public static final double VISION_LATERAL_KP = 2.0;
+        public static final double VISION_LATERAL_KI = 0.0;
+        public static final double VISION_LATERAL_KD = 0.01;
+
+        public static final int BEST_TAG_ID = 9;
 	}
 
 	public static class IntakeConstants {

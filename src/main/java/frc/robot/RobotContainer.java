@@ -13,11 +13,9 @@ import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.commands.FollowPathCommand;
 
 import edu.wpi.first.math.filter.SlewRateLimiter;
-
 import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
-
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -28,6 +26,10 @@ import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.FeederPercentSetpoint;
 import frc.robot.Constants.OperatorConstants;
+import frc.robot.Constants.ShooterPercentSetpoint;
+import frc.robot.Constants.ShooterVelocitySetpoint;
+import frc.robot.commands.AutoCMDs.IntakeCMD;
+import frc.robot.commands.AutoCMDs.OuttakeCMD;
 import frc.robot.commands.FeederDefaultCommand;
 import frc.robot.commands.FeederPercentCommand;
 import frc.robot.commands.IntakePercentCommand;
@@ -36,20 +38,15 @@ import frc.robot.commands.OuttakePercentCommand;
 import frc.robot.commands.ShooterPercentDefaultCommand;
 import frc.robot.commands.ShooterPercentSetpointCommand;
 import frc.robot.commands.SmartShootVelocityCommand;
-import frc.robot.commands.AutoCMDs.IntakeCMD;
-import frc.robot.commands.AutoCMDs.OuttakeCMD;
-
-
-import frc.robot.Constants.ShooterPercentSetpoint;
-import frc.robot.Constants.ShooterVelocitySetpoint;
+import frc.robot.commands.VisionAlignToHub;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.FeederSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.LED;
 import frc.robot.subsystems.ShooterSubsystem;
+import frc.robot.subsystems.VisionSubsystem;
 import frc.robot.vision.LoggableRobotPose;
-import frc.robot.vision.PhotonVisionSystem;
 
 
 /**
@@ -100,7 +97,7 @@ public class RobotContainer {
     public final IntakeSubsystem m_intakeSubsystem = new IntakeSubsystem();
     public final ShooterSubsystem m_shooterSubsystem = new ShooterSubsystem();
     public final FeederSubsystem m_feederSubsystem = new FeederSubsystem();
-    public final PhotonVisionSystem vision = new PhotonVisionSystem(this::consumePhotonVisionMeasurement, () -> drivetrain.getState().Pose);
+    public final VisionSubsystem m_visionSubsystem = new VisionSubsystem();
     public final LED m_led = new LED();
 
 
@@ -137,9 +134,9 @@ public class RobotContainer {
             .alongWith(new ShooterPercentSetpointCommand(m_shooterSubsystem, ShooterPercentSetpoint.Outtake))
         );
 
-        NamedCommands.registerCommand("Target Hub", 
-            Commands.runOnce(() -> targetHub.withTargetDirection(vision.getHeadingToHubFieldRelative()))
-        );
+        // NamedCommands.registerCommand("Target Hub", 
+        //     Commands.runOnce(() -> targetHub.withTargetDirection(vision.getHeadingToHubFieldRelative()))
+        // );
 
         NamedCommands.registerCommand("Shoot Near", 
             new SmartShootVelocityCommand(m_shooterSubsystem, m_feederSubsystem, ShooterVelocitySetpoint.Near)
@@ -217,25 +214,15 @@ public class RobotContainer {
         ///// Alternate driving
         /* Y (hold) -> Vision-constricted driving */
         joystick.y().whileTrue(
-            drivetrain.applyRequest(()-> {
-                if (!vision.isHubTargetValid()) {
-                    /* Do typical field-centric driving since we don't have a target */
-                    return fieldCentricDrive
-                        .withVelocityX(
-                            xLimiter.calculate(-joystick.getLeftY()) * MaxSpeed) // Drive forward with negative Y (forward)
-                        .withVelocityY(
-                            yLimiter.calculate(-joystick.getLeftX()) * MaxSpeed) // Drive left with negative X (left)
-                        .withRotationalRate(
-                            rotLimiter.calculate(-joystick.getRightX()) * MaxAngularRate); // Drive counterclockwise with negative X (left)
-                } else {
-                    SmartDashboard.putBoolean("Vision Activated", true);
-                    /* Use the hub target to determine where to aim TODO: maybe point the wheels so that they are perpendicular to the hub? Do this only if we go with a non-variable shooter*/
-                    return targetHub.withTargetDirection(vision.getHeadingToHubFieldRelative())
-                        .withVelocityX(joystick.getLeftY() * MaxSpeed) // Drive forward with negative Y (forward)
-                        .withVelocityY(joystick.getLeftX() * MaxSpeed); // Drive2``````` left with negative X (left)
-                }
-            }
-        ));
+            Commands.runOnce(() -> SmartDashboard.putBoolean("Vision Activated", true)).andThen(
+                new VisionAlignToHub(
+                drivetrain, 
+                m_visionSubsystem,
+                () ->joystick.getLeftY(),
+                () ->-joystick.getLeftX(),
+                () ->-joystick.getRightX())
+            )
+        ); 
         // reset "vision activated" boolean on the smartdashboard when we stop driving with vision
         joystick.y().onFalse(Commands.runOnce(() -> SmartDashboard.putBoolean("Vision Activated", false)));
 
@@ -355,15 +342,15 @@ public class RobotContainer {
     }
 
     public void periodic() {
-        vision.periodic();
+        // vision.periodic();
         SmartDashboard.putBoolean("Should kick", (joystick.rightTrigger().getAsBoolean() && joystick.rightBumper().getAsBoolean()));
     }
 
     public void simulationPeriodic() {
         var drivetrainPose = drivetrain.m_simOdometry.getPoseMeters();
-        vision.simPeriodic(drivetrainPose);
+        // vision.simPeriodic(drivetrainPose);
 
-        var debugField = vision.getSimDebugField();
-        debugField.getObject("EstimatedRobot").setPose(drivetrainPose);
+        // var debugField = vision.getSimDebugField();
+        // debugField.getObject("EstimatedRobot").setPose(drivetrainPose);
     }
 }
