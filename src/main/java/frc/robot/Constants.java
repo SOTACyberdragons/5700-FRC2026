@@ -4,13 +4,12 @@
 
 package frc.robot;
 
-import static edu.wpi.first.units.Units.Amps;
-
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.MotorOutputConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
+import static edu.wpi.first.units.Units.Amps;
 import edu.wpi.first.wpilibj.util.Color;
 
 /**
@@ -51,6 +50,8 @@ public final class Constants {
 		public static final int SHOOTER_LEADER_MOTOR_ID = 14;
 		public static final int SHOOTER_FOLLOWER_MOTOR_ID = 17;
 		public static final int SHOOTER_KICKER_MOTOR_ID = 16;
+
+        public static final String LIMELIGHT_NAME = "limelight-left";
 	}
 
 	public static class DrivetrainConstants {
@@ -70,50 +71,23 @@ public final class Constants {
 	}
 
 	public static class VisionConstants {
-		// VisionMoveToTarget.java ln 24
-		public static final double ROTATION_PID_KP = 0.5;
-		public static final double ROTATION_PID_KI = 0;
-		public static final double ROTATION_PID_KD = 0;
-
-		public static final double FORWARD_PID_KP = 2.5;
-		public static final double FORWARD_PID_KI = 0;
-		public static final double FORWARD_PID_KD = 0;
-
-		public static final double LATERAL_PID_KP = 2;
-		public static final double LATERAL_PID_KI = 0;
-		public static final double LATERAL_PID_KD = 0.01;
-
-		// AutoVisionCMD.java ln 23
-		public static final double AUTO_ROTATION_PID_KP = 0.05;
-		public static final double AUTO_ROTATION_PID_KI = 0;
-		public static final double AUTO_ROTATION_PID_KD = 0;
-
-		public static final double AUTO_FORWARD_PID_KP = 2.1;
-		public static final double AUTO_FORWARD_PID_KI = 0;
-		public static final double AUTO_FORWARD_PID_KD = 0;
-
-		public static final double AUTO_LATERAL_PID_KP = 2.3;
-		public static final double AUTO_LATERAL_PID_KI = 0;
-		public static final double AUTO_LATERAL_PID_KD = 0.01;
 
 		// VisionSubsystem.java ln 222
 		public static final String APRIL_TAG_1_NAME = "limelight-left";
-		public static final String APRIL_TAG_2_NAME = "limelight-right";
 
 		// VisionMoveToTarget.java ln 76, AutoVisionCMD ln 66
-		// in order of use (yes, tag 2 comes first)
-		public static final double SETPOINT_FORWARD_COMMAND_TAG_2 = 0.32;
-		public static final double SETPOINT_LATERAL_COMMAND_TAG_2 = -0.28;
-		public static final double SETPOINT_ROTATION_COMMAND_TAG_2 = 0;
 
-		public static final double SETPOINT_FORWARD_COMMAND_TAG_1 = 0.32;
-		public static final double SETPOINT_LATERAL_COMMAND_TAG_1 = -0.02;
-		public static final double SETPOINT_ROTATION_COMMAND_TAG_1 = 0;
+        public static final double TARGET_DISTANCE_FROM_HUB = 1.0; //UPDATE FROM REAL
 
-		// AutoVisionCMD ln 93
-		public static final double AUTO_VISION_ADJUST_FORWARD = 0.85;
-		public static final double AUTO_VISION_ADJUST_LATERAL = -0.85;
-		public static final double AUTO_VISION_ADJUST_ROTATION = 0.5;
+        // hub tag constants
+        public static final double HUB_TAG_HEIGHT = 6.5; //UPDATE FROM REAL
+
+        // camera mounting
+        public static final double CAMERA_MOUNT_HEIGHT = 0.48; //UPDATE FROM REAL
+        // degrees
+        public static final double CAMERA_MOUNT_ANGLE = 22;
+
+        public static final double VISION_SPEED_MULTIPLIER = 0.5;
 	}
 
 	public static class IntakeConstants {
