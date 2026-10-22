@@ -3,6 +3,7 @@
 // the WPILib BSD license file in the root directory of this project.
 package frc.robot.commands;
 
+import static java.lang.Math.toRadians;
 import java.util.function.Supplier;
 
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
@@ -66,6 +67,9 @@ public class VisionAlignToHub extends Command {
         // if we can see a tag
         //  && visionsubsystem.isTagVisible(VisionConstants.BEST_TAG_ID)
         if (visionsubsystem.getTagVisible()) {
+            // if (visionsubsystem.isTagVisible(VisionConstants.HUB_CENTER_TAG_ID)){
+                
+            // }
             //TODO: use the best tag if possible
             // create a directive to move forward by the difference between (the distance between the hub and the bot) and (the shoot distance setpoint)
             forwardCommand = forwardPID.calculate(
@@ -86,15 +90,10 @@ public class VisionAlignToHub extends Command {
         // due to pid error, we will never be exactly on target, so we stop worrying about it when we're close enough
         // check if the rotation to the hub relative to the bot is less than our constant
         // if so, stop worrying about it
-        // if (abs(visionsubsystem.getHubRotation()) >= VisionConstants.CLOSE_ENOUGH_ROT) {
-        //     rotationCommand = 0;
-        // }
-        
-        // // do the same with forward
-        // if (abs(visionsubsystem.getHubForward()) >= VisionConstants.CLOSE_ENOUGH_FOR) {
-        //     forwardCommand = 0;
-        // }
 
+        if(Math.abs(visionsubsystem.getHubRotation())<toRadians(VisionConstants.CLOSE_ENOUGH_ROT)){
+            rotationCommand = 0;
+        }
 
 
         // still drive with lateral, but get it from the joystick (aka vision doesn't control lat)
@@ -104,21 +103,21 @@ public class VisionAlignToHub extends Command {
         System.out.println(rotationCommand);
         // this part does the actual driving, using the previously determined commands in place of joystick input
         drivetrain.setControl(
-                visionRequest.withVelocityX(forwardCommand * VisionConstants.VISION_SPEED_MULTIPLIER)
-                        .withVelocityY(-lateralCommand) //FIXME: if you want to slow our sotm multiply this by the speed multiplier
-                        .withRotationalRate(rotationCommand * VisionConstants.VISION_SPEED_MULTIPLIER)
+            visionRequest.withVelocityX(forwardCommand * VisionConstants.VISION_SPEED_MULTIPLIER)
+                .withVelocityY(-lateralCommand) //FIXME: if you want to slow our sotm multiply this by the speed multiplier
+                .withRotationalRate(rotationCommand * VisionConstants.VISION_SPEED_MULTIPLIER)
         );
     }
 
     // Called once the command ends or is interrupted.
     @Override
     public void end(boolean interrupted) {
-        //     // Stop the drivetrain when the command ends
-        // drivetrain.setControl(
-        //     visionRequest.withVelocityX(0)
-        //                  .withVelocityY(0)
-        //                  .withRotationalRate(0)
-        // );
+        // Stop the drivetrain when the command ends
+        drivetrain.setControl(
+            visionRequest.withVelocityX(0)
+                .withVelocityY(0)
+                .withRotationalRate(0)
+        );
     }
 
     // Returns true when the command should end.

@@ -4,12 +4,16 @@
 
 package frc.robot;
 
+import java.util.Optional;
+
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.MotorOutputConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
 import static edu.wpi.first.units.Units.Amps;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.util.Color;
 
 /**
@@ -27,6 +31,8 @@ import edu.wpi.first.wpilibj.util.Color;
 public final class Constants {
 	public static class OperatorConstants {
 		public static final int k_DRIVER_CONTROLLER_PORT = 0;
+
+        public static Optional<Alliance> alliance = DriverStation.getAlliance();
 
 		/** Configs common across all motors. */
 		static final TalonFXConfiguration motorTalonFXInitialConfigs = new TalonFXConfiguration()
@@ -93,7 +99,7 @@ public final class Constants {
         public static final double CLOSE_ENOUGH_LAT = 0.5;
 
         //vision pid
-        public static final double VISION_ROTATION_KP = 0.05;
+        public static final double VISION_ROTATION_KP = 2.0;
         public static final double VISION_ROTATION_KI = 0.0;
         public static final double VISION_ROTATION_KD = 0.0;
 
@@ -105,7 +111,7 @@ public final class Constants {
         public static final double VISION_LATERAL_KI = 0.0;
         public static final double VISION_LATERAL_KD = 0.01;
 
-        public static final int BEST_TAG_ID = 9;
+        public static final int HUB_CENTER_TAG_ID = (OperatorConstants.alliance.isPresent() && OperatorConstants.alliance.get() == Alliance.Red) ? 10 : 26;
 	}
 
 	public static class IntakeConstants {
