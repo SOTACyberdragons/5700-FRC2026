@@ -7,10 +7,13 @@ import static java.lang.Math.cos;
 import static java.lang.Math.sin;
 import static java.lang.Math.tan;
 import static java.lang.Math.toRadians;
+import java.util.List;
 
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
+import frc.robot.Constants.OperatorConstants;
 import frc.robot.vision.LimelightHelpers;
 
 public class VisionSubsystem extends SubsystemBase {
@@ -40,6 +43,7 @@ public class VisionSubsystem extends SubsystemBase {
     private LimelightHelpers.RawFiducial[] visibleTags = new LimelightHelpers.RawFiducial[0];
 
     private double tagAreaPercent;
+    private List<Integer> BEST_TAG_ID_RANK;
 
     /**
      * Creates a new Vision.
@@ -53,13 +57,21 @@ public class VisionSubsystem extends SubsystemBase {
         //update vision
         tagVisible = LimelightHelpers.getTV(Constants.IDs.LIMELIGHT_NAME);
         visibleTags = LimelightHelpers.getRawFiducials(Constants.IDs.LIMELIGHT_NAME);
+        BEST_TAG_ID_RANK = 
+            (
+                OperatorConstants.alliance.isPresent() 
+                && OperatorConstants.alliance.get() 
+                == Alliance.Red
+            ) 
+            ? List.of(10, 9)
+            : List.of(26, 25)
+        ;
 
-        if (tagVisible) {
-            //for (LimelightHelpers.RawFiducial tag : LimelightHelpers.getRawFiducials(Constants.IDs.LIMELIGHT_NAME)){
-                //if (tag.id == Constants.VisionConstants.HUB_CENTER_TAG_ID){
-                    tagPose = LimelightHelpers.getTargetPose_CameraSpace(Constants.IDs.LIMELIGHT_NAME);
-                //}
-            //}
+        int primaryTagId = (int) LimelightHelpers.getFiducialID(Constants.IDs.LIMELIGHT_NAME);
+        boolean bestTagVisible = tagVisible && BEST_TAG_ID_RANK.contains(primaryTagId);
+
+        if (bestTagVisible) {
+            tagPose = LimelightHelpers.getTargetPose_CameraSpace(Constants.IDs.LIMELIGHT_NAME);
            
             currentTagDistForward = tagPose[2];
             currentTagDistLateral = tagPose[0];

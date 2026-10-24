@@ -110,8 +110,6 @@ public final class Constants {
         public static final double VISION_LATERAL_KP = 2.0;
         public static final double VISION_LATERAL_KI = 0.0;
         public static final double VISION_LATERAL_KD = 0.01;
-
-        public static final int HUB_CENTER_TAG_ID = (OperatorConstants.alliance.isPresent() && OperatorConstants.alliance.get() == Alliance.Red) ? 8 : 11; //TODO: update tag IDs or get murked
 	}
 
 	public static class IntakeConstants {

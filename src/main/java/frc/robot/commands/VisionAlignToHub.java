@@ -43,6 +43,7 @@ public class VisionAlignToHub extends Command {
     private Supplier<Double> forwardSupplier;
     private Supplier<Double> lateralSupplier;
     private Supplier<Double> rotationSupplier;
+    private boolean isFinished = false;
 
 
     public VisionAlignToHub(
@@ -94,14 +95,16 @@ public class VisionAlignToHub extends Command {
         } else {
             forwardCommand = 0;//lateralSupplier.get();
             rotationCommand = 0;//rotationSupplier.get();
+            isFinished = true;
         }
 
         // due to pid error, we will never be exactly on target, so we stop worrying about it when we're close enough
         // check if the rotation to the hub relative to the bot is less than our constant
         // if so, stop worrying about it
 
-        if(Math.abs(visionsubsystem.getHubRotation())<toRadians(VisionConstants.CLOSE_ENOUGH_ROT)){
+        if(Math.abs(visionsubsystem.getHubRotation())<VisionConstants.CLOSE_ENOUGH_ROT){
             rotationCommand = 0;
+            isFinished = true; // note that this will make it finish as soon as the rotation finishes, so if its still driving, itll shoot
         }
 
 
@@ -132,6 +135,6 @@ public class VisionAlignToHub extends Command {
     // Returns true when the command should end.
     @Override
     public boolean isFinished() {
-        return false;
+        return isFinished;
     }
 }
