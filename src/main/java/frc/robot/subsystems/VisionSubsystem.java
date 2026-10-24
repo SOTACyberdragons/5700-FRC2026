@@ -55,8 +55,12 @@ public class VisionSubsystem extends SubsystemBase {
         visibleTags = LimelightHelpers.getRawFiducials(Constants.IDs.LIMELIGHT_NAME);
 
         if (tagVisible) {
-            tagPose = LimelightHelpers.getTargetPose_CameraSpace(Constants.IDs.LIMELIGHT_NAME);
-
+            //for (LimelightHelpers.RawFiducial tag : LimelightHelpers.getRawFiducials(Constants.IDs.LIMELIGHT_NAME)){
+                //if (tag.id == Constants.VisionConstants.HUB_CENTER_TAG_ID){
+                    tagPose = LimelightHelpers.getTargetPose_CameraSpace(Constants.IDs.LIMELIGHT_NAME);
+                //}
+            //}
+           
             currentTagDistForward = tagPose[2];
             currentTagDistLateral = tagPose[0];
             currentTagDistYaw = tagPose[4];

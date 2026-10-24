@@ -46,7 +46,6 @@ import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.LED;
 import frc.robot.subsystems.ShooterSubsystem;
 import frc.robot.subsystems.VisionSubsystem;
-import frc.robot.vision.LoggableRobotPose;
 
 
 /**
@@ -361,11 +360,6 @@ public class RobotContainer {
         // An example command will be run in autonomous
         // return Autos.exampleAuto(m_exampleSubsystem);
         return autoChooser.getSelected();
-    }
-
-        public void consumePhotonVisionMeasurement(LoggableRobotPose pose) {
-        /* Super simple, should modify to support variable standard deviations */
-        drivetrain.addVisionMeasurement(pose.estimatedPose.toPose2d(), pose.timestampSeconds);
     }
 
     public void periodic() {

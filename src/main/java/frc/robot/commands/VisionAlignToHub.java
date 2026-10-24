@@ -75,9 +75,9 @@ public class VisionAlignToHub extends Command {
         // if we can see a tag
         //  && visionsubsystem.isTagVisible(VisionConstants.BEST_TAG_ID)
         if (visionsubsystem.getTagVisible()) {
-            // if (visionsubsystem.isTagVisible(VisionConstants.HUB_CENTER_TAG_ID)){
+            //if (visionsubsystem.isTagVisible(VisionConstants.HUB_CENTER_TAG_ID)){
                 
-            // }
+            //}
             //TODO: use the best tag if possible
             // create a directive to move forward by the difference between (the distance between the hub and the bot) and (the shoot distance setpoint)
             forwardCommand = forwardPID.calculate(
@@ -89,6 +89,7 @@ public class VisionAlignToHub extends Command {
                 visionsubsystem.getHubRotation(), 
                 0
             );
+            System.out.println(visionsubsystem.getHubRotation());
 
         } else {
             forwardCommand = 0;//lateralSupplier.get();
