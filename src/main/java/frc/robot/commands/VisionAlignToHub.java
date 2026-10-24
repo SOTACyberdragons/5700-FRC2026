@@ -12,6 +12,7 @@ import com.ctre.phoenix6.swerve.SwerveRequest;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants.VisionConstants;
+import frc.robot.Constants.VisionSetpoint;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.VisionSubsystem;
 
@@ -21,6 +22,8 @@ public class VisionAlignToHub extends Command {
 
     private final CommandSwerveDrivetrain drivetrain;
     private final VisionSubsystem visionsubsystem;
+
+    private VisionSetpoint setpoint;
 
     // these pid controllers allow us to control how the robot moves to the target (when it speeds up/slows down and how much)
     private final PIDController rotationPID = new PIDController(VisionConstants.VISION_ROTATION_KP, VisionConstants.VISION_ROTATION_KI, VisionConstants.VISION_ROTATION_KD);
@@ -42,15 +45,20 @@ public class VisionAlignToHub extends Command {
     private Supplier<Double> rotationSupplier;
 
 
-    public VisionAlignToHub(CommandSwerveDrivetrain drivetrain, VisionSubsystem visionsubsystem,
+    public VisionAlignToHub(
+            CommandSwerveDrivetrain drivetrain, 
+            VisionSubsystem visionsubsystem,
+            VisionSetpoint set,
             Supplier<Double> forwardSupplier,
             Supplier<Double> lateralSupplier,
-            Supplier<Double> rotationSupplier) {
+            Supplier<Double> rotationSupplier
+        ) {
         this.forwardSupplier = forwardSupplier;
         this.lateralSupplier = lateralSupplier;
         this.rotationSupplier = rotationSupplier;
         this.drivetrain = drivetrain;
         this.visionsubsystem = visionsubsystem;
+        this.setpoint = set;
 
         addRequirements(drivetrain, visionsubsystem);
     }
@@ -74,7 +82,7 @@ public class VisionAlignToHub extends Command {
             // create a directive to move forward by the difference between (the distance between the hub and the bot) and (the shoot distance setpoint)
             forwardCommand = forwardPID.calculate(
                 visionsubsystem.getHubForward(), 
-                VisionConstants.LONG_SHOOT_DIST_TO_HUB
+                setpoint.distance
             );
             // create a directive to rotate by the difference between the hub's rotation and 0 (aka rotate to the hub's rotation)
             rotationCommand = rotationPID.calculate(

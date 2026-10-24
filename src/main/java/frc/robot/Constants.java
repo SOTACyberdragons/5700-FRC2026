@@ -262,4 +262,15 @@ public final class Constants {
 			this.velocity = velocity;
 		}
 	}
+
+    public enum VisionSetpoint {
+        Near(Constants.VisionConstants.SHORT_SHOOT_DIST_TO_HUB),
+        Far(Constants.VisionConstants.LONG_SHOOT_DIST_TO_HUB);
+
+        public final double distance;
+
+        private VisionSetpoint(double dist) {
+            this.distance = dist;
+        }
+    }
 }

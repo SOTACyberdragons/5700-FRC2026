@@ -212,12 +212,13 @@ public class RobotContainer {
 
 
         ///// Alternate driving
-        /* Y (hold) -> Vision-constricted driving */
+        /* Y (hold) -> Vision-align using the near setpoint */
         joystick.y().whileTrue(
             Commands.runOnce(() -> SmartDashboard.putBoolean("Vision Activated", true)).andThen(
                 new VisionAlignToHub(
                 drivetrain, 
                 m_visionSubsystem,
+                Constants.VisionSetpoint.Near,
                 () ->joystick.getLeftY(),
                 () ->-joystick.getLeftX(),
                 () ->-joystick.getRightX())
@@ -299,7 +300,11 @@ public class RobotContainer {
         joystick.rightBumper().whileTrue(
             // new ShooterPercentSetpointCommand(m_shooterSubsystem, ShooterPercentSetpoint.Near)
             // .alongWith(new FeederPercentCommand(m_feederSubsystem, FeederPercentSetpoint.Feed))
-            new SmartShootVelocityCommand(m_shooterSubsystem, m_feederSubsystem, ShooterVelocitySetpoint.Near)
+            new SmartShootVelocityCommand(
+                m_shooterSubsystem, 
+                m_feederSubsystem, 
+                ShooterVelocitySetpoint.Near
+            )
         );
 
 
@@ -307,16 +312,38 @@ public class RobotContainer {
         joystick.rightTrigger().whileTrue(
             // new ShooterPercentSetpointCommand(m_shooterSubsystem, ShooterPercentSetpoint.Far)
             // .alongWith(new FeederPercentCommand(m_feederSubsystem, FeederPercentSetpoint.Feed))
-            new SmartShootVelocityCommand(m_shooterSubsystem, m_feederSubsystem, ShooterVelocitySetpoint.Far)
+            new VisionAlignToHub(
+                drivetrain, 
+                m_visionSubsystem, 
+                Constants.VisionSetpoint.Far, 
+                () ->joystick.getLeftY(),
+                () ->-joystick.getLeftX(),
+                () ->-joystick.getRightX()
+            )
+            .andThen(
+                new SmartShootVelocityCommand(
+                    m_shooterSubsystem, 
+                    m_feederSubsystem, 
+                    ShooterVelocitySetpoint.Far
+                )
+            )
         );
 
         // X (hold) -> Run feeder in (useful for agitation) -- this is so cool :3
         joystick.x().whileTrue(
-            new FeederPercentCommand(m_feederSubsystem, (joystick.rightTrigger().getAsBoolean() || joystick.rightBumper().getAsBoolean()), FeederPercentSetpoint.Feed)
+            new FeederPercentCommand(
+                m_feederSubsystem, 
+                (joystick.rightTrigger().getAsBoolean() || joystick.rightBumper().getAsBoolean()), 
+                FeederPercentSetpoint.Feed
+            )
         );
         // B (hold) -> Run feeder out (useful for depositing to human player)
         joystick.b().whileTrue(
-            new FeederPercentCommand(m_feederSubsystem, false, FeederPercentSetpoint.Outtake)
+            new FeederPercentCommand(
+                m_feederSubsystem, 
+                false, 
+                FeederPercentSetpoint.Outtake
+            )
         );
 
     }
